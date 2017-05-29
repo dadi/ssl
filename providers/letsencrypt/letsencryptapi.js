@@ -12,48 +12,57 @@ class LetsEncryptAPI {
       .then(dirs => this.directories = dirs)
   }
 
-  fetchCert () {
-
+  fetchCert (body) {
     // let body = {
     //   resource: 'new-reg'
     // }
     // let payload = util.b64dec('payload').toString()
-    // return fetch(this.directories.cert, {
-    //   method: 'POST',
-    //   // body: payload,
-    //   headers: {
-    //     alg: 'RS256',
-    //     jwk: {
-    //       kty: 'RSA'
-    //     }
-    //   }
-    // })
-    // .then(resp => resp.json())
+    return fetch(this.directories.cert, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    })
+    .then(resp => resp.json())
   }
 
 
   generateBody () {
-    const key = util.rsa()
-    const buffer = util.toBinaryString(JSON.stringify({resource: "new-reg"}))
-    const payload = util.b64enc(buffer)
+    let body = {}
+    return this.fetchNonce()
+      .then(nonce => {
 
-    const buffer_e = util.toBinaryString(key.exportKey('components').e.toString())
-    const buffer_n = util.toBinaryString(key.exportKey('components').n)
-    const header = {
-      alg: 'RS256',
-      jwk: {
-        e: util.b64enc(
-          buffer_e
-        ),
-        kty: 'RSA',
-        n: util.b64enc(
-          buffer_n
-        ),
-      }
-    }
-    this.fetchNonce().then(nonce => {
-      console.log(nonce, header)
-    })
+        const key = util.rsa()
+        const payload_buffer = util.toBuffer(JSON.stringify({resource: "new-reg"}))
+        const buffer_e = util
+          .toBinaryString(key.exportKey('components').e)
+        const buffer_n = util
+          .toBinaryString(key.exportKey('components').n)
+
+        body.payload = util.b64enc(payload_buffer)
+
+        // Header
+        body.header = {
+          alg: 'RS256',
+          jwk: {
+            kty: 'RSA',
+            e: util.b64enc(
+              buffer_e
+            ),
+            n: util.b64enc(
+              buffer_n
+            ),
+          }
+        }
+
+        const bodyString = JSON.stringify(Object.assign({}, body.header, {nonce: nonce}))
+        body.protected = util.b64enc(util.toBuffer(bodyString))
+
+        const buffer = util.toBuffer(`${body.protected}.${body.payload}`)
+        const signature = key.sign(buffer)
+
+        body.signature = util.b64enc(signature)
+
+        return body
+      })
   }
 
   /**

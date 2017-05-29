@@ -21,7 +21,8 @@ class LetsEncrypt extends LetsEncryptAPI {
   create () {
     return this.updateAPIList()
       .then(() => {
-        let body = this.generateBody()
+        this.generateBody()
+          .then(body => this.fetchCert(body).then(res => console.log(res)))
       })
       // .then(() => this.fetchCert())
   }
