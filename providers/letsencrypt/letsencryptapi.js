@@ -43,15 +43,9 @@ class LetsEncryptAPI {
     let body = {}
     return this.fetchNonce()
       .then(nonce => {
-
         const key = util.rsa()
-        // console.log('key size', key.getKeySize())
-        // console.log('max message size', key.getMaxMessageSize())
-        // console.log(key.exportKey('components'))
         const payload_buffer = util.toBuffer(JSON.stringify(payload))
-
         body.payload = util.b64enc(payload_buffer)
-
         // Header
         body.header = this.generateHeader(key)
 
@@ -59,9 +53,7 @@ class LetsEncryptAPI {
         body.protected = util.b64enc(util.toBuffer(bodyString))
 
         const buffer = util.toBuffer(`${body.protected}.${body.payload}`)
-        console.log(buffer.length)
         const signature = key.sign(buffer)
-
         body.signature = util.b64enc(signature)
 
         return body
@@ -77,13 +69,13 @@ class LetsEncryptAPI {
     return {
       alg: 'RS256',
       jwk: {
-        kty: 'RSA',
         e: util.b64enc(
           buffer_e
         ),
+        kty: 'RSA',
         n: util.b64enc(
           buffer_n
-        ),
+        )
       }
     }
   }
