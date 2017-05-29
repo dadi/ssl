@@ -9,8 +9,6 @@ ssl
   .storeIn('/data/app/dadi-ssl/certs', true) // SSL directory, create if missing
   .useEnvironment('stage') // Environment (default: production)
   .provider('letsencrypt') // Provider default: letsencrypt
-  .register({
-    email: 'am@dadi.co'
-  })
+  .registerTo('am@dadi.co')
   .create()
 ```
