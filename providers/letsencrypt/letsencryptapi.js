@@ -7,20 +7,19 @@ class LetsEncryptAPI {
 
   constructor () {}
 
-  updateAPIList () {
-    return this.requestDirectories()
+  updateDirectoryList () {
+    return this.requestJSON(this.docUrl)
       .then(dirs => this.directories = dirs)
   }
 
   register () {
+    this.key = util.rsa(this.opts.bytes)
     return this.generateSignedRequest({
       resource: "new-reg",
-      // agreeTos: true,
-      // email: this.opts.email
+      agreement: 'https://letsencrypt.org/documents/LE-SA-v1.1.1-August-1-2016.pdf',
       contact: [`mailto:${this.opts.email}`]
     }).then(body => {
-      // console.log(`url${this.directories.registration}`)
-      // console.log(JSON.stringify(body, null, 2))
+
       return fetch(this.directories.registration, {
             method: 'POST',
             headers: {
@@ -32,35 +31,39 @@ class LetsEncryptAPI {
     })
   }
 
-  // fetchCert (body) {
-    // return this.generateSignedRequest({
-    //   resource: 'new-reg'
-    // }).then(body => {
-    //   return fetch(this.directories.cert, {
-    //         method: 'POST',
-    //         body: JSON.stringify(body),
-    //       })
-    //       .then(resp => resp.json())
-    // })
-  // }
+  fetchCert () {
+    return this.generateSignedRequest({
+      resource: 'new-cert'
+    }).then(body => {
+      return fetch(this.directories.cert, {
+            method: 'POST',
+            body: JSON.stringify(body),
+          })
+          .then(resp => resp.json())
+    })
+  }
 
+  generateCSR () {
+    return {
+
+    }
+  }
 
   generateSignedRequest (payload) {
     let body = {}
 
     return this.fetchNonce()
       .then(nonce => {
-        const key = util.rsa(this.opts.bytes)
         const payload_buffer = util.toBuffer(JSON.stringify(payload))
         body.payload = util.b64enc(payload_buffer)
         // Header
-        body.header = this.generateHeader(key)
+        body.header = this.generateHeader(this.key)
 
         const bodyString = JSON.stringify(Object.assign({}, body.header, {nonce}))
         body.protected = util.b64enc(util.toBuffer(bodyString))
 
         const buffer = util.toBuffer(`${body.protected}.${body.payload}`)
-        const signature = key.hashAndSign('sha256', buffer)
+        const signature = this.key.hashAndSign('sha256', buffer)
 
         body.signature = util.b64enc(signature)
         body.nonce = nonce
@@ -69,14 +72,14 @@ class LetsEncryptAPI {
       })
   }
 
-  generateHeader (key) {
+  generateHeader () {
 
     return {
       alg: 'RS256',
       jwk: {
-        e: util.b64enc(key.getExponent()),
+        e: util.b64enc(this.key.getExponent()),
         kty: 'RSA',
-        n: util.b64enc(key.getModulus())
+        n: util.b64enc(this.key.getModulus())
       }
     }
   }
@@ -109,19 +112,22 @@ class LetsEncryptAPI {
    * @return {String} replay-nonce
    */
   fetchNonce () {
-    return fetch(this.dirUrl, {
+    return fetch(this.docUrl, {
       method: 'HEAD'
     })
       .then(res => res.headers.get('replay-nonce'))
   }
 
   /**
-   * Fetch directories
+   * Request
    * @return {[type]} [description]
    */
-  requestDirectories () {
-    return fetch(this.dirUrl)
-      .then(res => res.json())
+  requestJSON (url) {
+    return fetch(url)
+      .then(res => {
+        console.log(res.headers)
+        return res.json()
+      })
   }
 
 

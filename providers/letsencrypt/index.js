@@ -14,25 +14,29 @@ class LetsEncrypt extends LetsEncryptAPI {
   constructor (opts) {
     super()
     this.opts = opts
-    this.dirUrl = opts.env
+    this.docUrl = opts.env
     return this
   }
 
   create () {
-    return this.updateAPIList()
+    return this.updateDirectoryList()
       .then(() => {
         this.register()
-          .then(resp => console.log(resp))
+          .then(resp => {
+            // console.log(resp)
+            this.fetchCert()
+              .then(certResp => console.log(certResp))
+          })
       })
       // .then(() => this.fetchCert())
   }
 
-  get dirUrl () {
-    return this._dirUrl
+  get docUrl () {
+    return this._docUrl
   }
 
-  set dirUrl (args) {
-    this._dirUrl = (args === 'stage')
+  set docUrl (args) {
+    this._docUrl = (args === 'stage')
      ? Constants.STAGE_API_DIRECTORY 
      : Constants.PRODUCTION_API_DIRECTORY
   }
