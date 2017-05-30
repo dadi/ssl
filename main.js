@@ -9,4 +9,5 @@ module.exports = new SSL()
   .provider('letsencrypt') // Provider default: letsencrypt.
   .registerTo('am@dadi.co') // Register certificate to email address.
   .autoRenew(true) // Auto renew certificate.
+  .byteLength(2048) // RSA bytelength (default: 2048)
   .create() // Start process.

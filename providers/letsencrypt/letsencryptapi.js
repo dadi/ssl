@@ -47,9 +47,10 @@ class LetsEncryptAPI {
 
   generateSignedRequest (payload) {
     let body = {}
+    
     return this.fetchNonce()
       .then(nonce => {
-        const key = util.rsa()
+        const key = util.rsa(this.opts.bytes)
         const payload_buffer = util.toBuffer(JSON.stringify(payload))
         body.payload = util.b64enc(payload_buffer)
         // Header
@@ -68,9 +69,9 @@ class LetsEncryptAPI {
 
   generateHeader (key) {
     const buffer_e = util
-      .toBinaryString(key.exportKey('components').e)
+      .b64EncodeBinaryString(key.exportKey('components').e)
     const buffer_n = util
-      .toBinaryString(key.exportKey('components').n)
+      .b64EncodeBinaryString(key.exportKey('components').n)
 
     return {
       alg: 'RS256',
