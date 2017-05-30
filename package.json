@@ -11,6 +11,6 @@
   "dependencies": {
     "mkdirp-promise": "^5.0.1",
     "node-fetch": "^1.7.0",
-    "node-rsa": "^0.4.2"
+    "ursa": "^0.9.4"
   }
 }

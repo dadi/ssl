@@ -31,22 +31,44 @@ class LetsEncryptAPI {
     })
   }
 
-  fetchCert () {
+  challenge () {
     return this.generateSignedRequest({
-      resource: 'new-cert'
+      resource: "new-authz",
+      identifier: {
+        type: 'dns',
+        value: this.opts.domains[0]
+      }
     }).then(body => {
-      return fetch(this.directories.cert, {
+      return fetch(this.directories.authz, {
             method: 'POST',
-            body: JSON.stringify(body),
+            headers: {
+              'content-type': 'application/json'
+            },
+            body: JSON.stringify(body, null, 2),
           })
           .then(resp => resp.json())
     })
   }
 
-  generateCSR () {
-    return {
+  fetchCert () {
 
-    }
+    // return this.generateSignedRequest({
+    //   resource: 'new-cert'
+    // }).then(body => {
+    //   return fetch(this.directories.cert, {
+    //         method: 'POST',
+    //         body: JSON.stringify(body),
+    //       })
+    //       .then(resp => resp.json())
+    // })
+  }
+
+  generateCSR () {
+   
+    // csr = OpenSSL::X509::Request.new
+    // csr.subject = OpenSSL::X509::Name.new([['CN', 'le.alexpeattie.com']])
+    // csr.public_key = domain_key.public_key
+    // csr.sign domain_key, hash_algo
   }
 
   generateSignedRequest (payload) {
@@ -99,7 +121,7 @@ class LetsEncryptAPI {
   set directories (dirs) {
     this._directories = {
       keyChange: dirs['key-change'],
-      auth: dirs['new-authz'],
+      authz: dirs['new-authz'],
       cert: dirs['new-cert'],
       registration: dirs['new-reg'],
       revoke: dirs['revoke-cert']

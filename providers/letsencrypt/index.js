@@ -24,8 +24,8 @@ class LetsEncrypt extends LetsEncryptAPI {
         this.register()
           .then(resp => {
             // console.log(resp)
-            this.fetchCert()
-              .then(certResp => console.log(certResp))
+            this.challenge()
+              .then(challenge => console.log(challenge))
           })
       })
       // .then(() => this.fetchCert())
