@@ -19,14 +19,14 @@ class LetsEncryptAPI {
       // email: this.opts.email
       contact: [`mailto:${this.opts.email}`]
     }).then(body => {
-      console.log(`url${this.directories.registration}`)
-      console.log(JSON.stringify(body, null, 2))
+      // console.log(`url${this.directories.registration}`)
+      // console.log(JSON.stringify(body, null, 2))
       return fetch(this.directories.registration, {
             method: 'POST',
             headers: {
               'content-type': 'application/json'
             },
-            body: JSON.stringify(body),
+            body: JSON.stringify(body, null, 2),
           })
           .then(resp => resp.json())
     })
@@ -34,7 +34,7 @@ class LetsEncryptAPI {
 
   // fetchCert (body) {
     // return this.generateSignedRequest({
-    //   resource: "new-reg"
+    //   resource: 'new-reg'
     // }).then(body => {
     //   return fetch(this.directories.cert, {
     //         method: 'POST',
@@ -47,7 +47,7 @@ class LetsEncryptAPI {
 
   generateSignedRequest (payload) {
     let body = {}
-    
+
     return this.fetchNonce()
       .then(nonce => {
         const key = util.rsa(this.opts.bytes)
@@ -60,29 +60,23 @@ class LetsEncryptAPI {
         body.protected = util.b64enc(util.toBuffer(bodyString))
 
         const buffer = util.toBuffer(`${body.protected}.${body.payload}`)
-        const signature = key.sign(buffer)
+        const signature = key.hashAndSign('sha256', buffer)
+
         body.signature = util.b64enc(signature)
+        body.nonce = nonce
 
         return body
       })
   }
 
   generateHeader (key) {
-    const buffer_e = util
-      .b64EncodeBinaryString(key.exportKey('components').e)
-    const buffer_n = util
-      .b64EncodeBinaryString(key.exportKey('components').n)
 
     return {
       alg: 'RS256',
       jwk: {
-        e: util.b64enc(
-          buffer_e
-        ),
+        e: util.b64enc(key.getExponent()),
         kty: 'RSA',
-        n: util.b64enc(
-          buffer_n
-        )
+        n: util.b64enc(key.getModulus())
       }
     }
   }
