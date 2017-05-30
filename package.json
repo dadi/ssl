@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "crypto": "0.0.3",
     "mkdirp-promise": "^5.0.1",
     "node-fetch": "^1.7.0",
     "ursa": "^0.9.4"

@@ -2,6 +2,7 @@
 
 const fetch = require('node-fetch')
 const util = require('../../lib/util')
+const crypto = require('crypto')
 
 class LetsEncryptAPI {
 
@@ -50,27 +51,6 @@ class LetsEncryptAPI {
     })
   }
 
-  fetchCert () {
-
-    // return this.generateSignedRequest({
-    //   resource: 'new-cert'
-    // }).then(body => {
-    //   return fetch(this.directories.cert, {
-    //         method: 'POST',
-    //         body: JSON.stringify(body),
-    //       })
-    //       .then(resp => resp.json())
-    // })
-  }
-
-  generateCSR () {
-   
-    // csr = OpenSSL::X509::Request.new
-    // csr.subject = OpenSSL::X509::Name.new([['CN', 'le.alexpeattie.com']])
-    // csr.public_key = domain_key.public_key
-    // csr.sign domain_key, hash_algo
-  }
-
   generateSignedRequest (payload) {
     let body = {}
 
@@ -95,7 +75,6 @@ class LetsEncryptAPI {
   }
 
   generateHeader () {
-
     return {
       alg: 'RS256',
       jwk: {
@@ -103,6 +82,21 @@ class LetsEncryptAPI {
         kty: 'RSA',
         n: util.b64enc(this.key.getModulus())
       }
+    }
+  }
+
+  middleware () {
+    return (req, res, next) => {
+      if (this.challengeTokenUrl) {
+        // console.log(this.challengeTokenUrl)
+        // console.log(this.key)
+        if (req.url === this.challengeTokenUrl) {
+          const jwk = this.generateHeader()
+          console.log('MATCH FOUND')
+          console.log(util.b64enc(crypto.hash.digest(jwk)))
+        }
+      }
+      return next()
     }
   }
 

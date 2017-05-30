@@ -9,26 +9,33 @@ class LetsEncrypt extends LetsEncryptAPI {
    * @constructor
    * @param  {Boolean} options.agreeTos Agree to Terms of Service.
    * @param  {String}  options.server   LE server. one of [staging, live]
-   * @return {[type]}                   [description]
+   * @return {Class} LetsEncrypt class instance.
    */
   constructor (opts) {
     super()
-    this.opts = opts
-    this.docUrl = opts.env
     return this
   }
 
-  create () {
-    return this.updateDirectoryList()
+  create (opts) {
+    this.opts = opts
+    this.docUrl = opts.env
+
+    this.updateDirectoryList()
       .then(() => {
         this.register()
           .then(resp => {
-            // console.log(resp)
             this.challenge()
-              .then(challenge => console.log(challenge))
+              .then(resp => {
+                // Set challenge token for use with middleware.
+                const httpChallenge = resp.challenges
+                  .find(challenge => challenge.type === 'http-01')
+
+                if (httpChallenge) {
+                  this.challengeTokenUrl = `/.well-known/acme-challenge/${httpChallenge.token}`
+                }
+              })
           })
       })
-      // .then(() => this.fetchCert())
   }
 
   get docUrl () {
