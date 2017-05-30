@@ -15,11 +15,17 @@ class LetsEncryptAPI {
   register () {
     return this.generateSignedRequest({
       resource: "new-reg",
+      // agreeTos: true,
+      // email: this.opts.email
       contact: [`mailto:${this.opts.email}`]
     }).then(body => {
-      // console.log(body)
+      console.log(`url${this.directories.registration}`)
+      console.log(JSON.stringify(body, null, 2))
       return fetch(this.directories.registration, {
             method: 'POST',
+            headers: {
+              'content-type': 'application/json'
+            },
             body: JSON.stringify(body),
           })
           .then(resp => resp.json())
@@ -49,7 +55,7 @@ class LetsEncryptAPI {
         // Header
         body.header = this.generateHeader(key)
 
-        const bodyString = JSON.stringify(Object.assign({}, body.header, {nonce: nonce}))
+        const bodyString = JSON.stringify(Object.assign({}, body.header, {nonce}))
         body.protected = util.b64enc(util.toBuffer(bodyString))
 
         const buffer = util.toBuffer(`${body.protected}.${body.payload}`)
