@@ -2,7 +2,6 @@
 
 const fetch = require('node-fetch')
 const util = require('../../lib/util')
-const crypto = require('crypto')
 
 class LetsEncryptAPI {
 
@@ -15,6 +14,7 @@ class LetsEncryptAPI {
 
   register () {
     this.key = util.rsa(this.opts.bytes)
+
     return this.generateSignedRequest({
       resource: "new-reg",
       agreement: 'https://letsencrypt.org/documents/LE-SA-v1.1.1-August-1-2016.pdf',
@@ -23,9 +23,6 @@ class LetsEncryptAPI {
 
       return fetch(this.directories.registration, {
             method: 'POST',
-            headers: {
-              'content-type': 'application/json'
-            },
             body: JSON.stringify(body, null, 2),
           })
           .then(resp => resp.json())
@@ -42,13 +39,59 @@ class LetsEncryptAPI {
     }).then(body => {
       return fetch(this.directories.authz, {
             method: 'POST',
-            headers: {
-              'content-type': 'application/json'
-            },
-            body: JSON.stringify(body, null, 2),
+            body: JSON.stringify(body),
           })
-          .then(resp => resp.json())
+          .then(resp => resp.json().then(json => {
+            // Set challenge token for use with middleware.
+            const httpChallenge = json.challenges
+              .find(challenge => challenge.type === 'http-01')
+
+            if (httpChallenge) {
+              console.log("current status", httpChallenge.status)
+
+              // // Temporary check to config challenge status
+              this.challengeTokenUrl = `/.well-known/acme-challenge/${httpChallenge.token}`
+
+              this.challengeResponse = this.generateChallengeResponse(httpChallenge)
+              console.log(this.challengeResponse)
+              console.log(httpChallenge.uri)
+
+              this.requestChallengeCheck(httpChallenge.uri)
+                .then(resp => {
+                  console.log('Acceptance check', resp.statusText)
+
+                  // Delay acceptance status check
+                  setTimeout(() => {
+                    this.checkChallengeStatus(httpChallenge.uri)
+                      .then(resp => console.log('New status', resp.status))
+                    }, 2000)
+                })
+            }
+          }))
     })
+  }
+
+  requestChallengeCheck (url) {
+    return this.generateSignedRequest({
+        resource: 'challenge',
+        keyAuthorization: this.challengeResponse
+    }).then(body => {
+      return fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(body)
+      })
+    })
+  }
+
+  generateChallengeResponse (httpChallenge) {
+    const jwk = this.generateHeader()
+    let thumbprint = util.b64enc(util.JSONDigest(jwk))
+
+    return `${httpChallenge.token}.${thumbprint}`
+  }
+
+  checkChallengeStatus (url) {
+    return this.requestJSON(url)
   }
 
   generateSignedRequest (payload) {
@@ -59,7 +102,7 @@ class LetsEncryptAPI {
         const payload_buffer = util.toBuffer(JSON.stringify(payload))
         body.payload = util.b64enc(payload_buffer)
         // Header
-        body.header = this.generateHeader(this.key)
+        body.header = this.generateHeader()
 
         const bodyString = JSON.stringify(Object.assign({}, body.header, {nonce}))
         body.protected = util.b64enc(util.toBuffer(bodyString))
@@ -88,15 +131,17 @@ class LetsEncryptAPI {
   middleware () {
     return (req, res, next) => {
       if (this.challengeTokenUrl) {
-        // console.log(this.challengeTokenUrl)
-        // console.log(this.key)
+        console.log('MIDDLEWARE', req.url)
         if (req.url === this.challengeTokenUrl) {
-          const jwk = this.generateHeader()
           console.log('MATCH FOUND')
-          console.log(util.b64enc(crypto.hash.digest(jwk)))
+          console.log('write', this.challengeResponse)
+          res.write(this.challengeResponse)
+          res.end()
+        } else {
+          return next()
         }
       }
-      return next()
+      // return next()
     }
   }
 
@@ -140,10 +185,7 @@ class LetsEncryptAPI {
    */
   requestJSON (url) {
     return fetch(url)
-      .then(res => {
-        console.log(res.headers)
-        return res.json()
-      })
+      .then(res => res.json())
   }
 
 

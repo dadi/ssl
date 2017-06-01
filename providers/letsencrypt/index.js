@@ -22,18 +22,18 @@ class LetsEncrypt extends LetsEncryptAPI {
 
     this.updateDirectoryList()
       .then(() => {
+        console.log('Start registration')
         this.register()
           .then(resp => {
-            this.challenge()
-              .then(resp => {
-                // Set challenge token for use with middleware.
-                const httpChallenge = resp.challenges
-                  .find(challenge => challenge.type === 'http-01')
-
-                if (httpChallenge) {
-                  this.challengeTokenUrl = `/.well-known/acme-challenge/${httpChallenge.token}`
-                }
-              })
+            if (resp.status) {
+              console.log(`Error: ${resp.detail}`)
+            } else {
+              console.log(`Registration status: ${resp.Status}.\nStarting challenge`)
+              this.challenge()
+                .then(resp => {
+                    console.log('challenge URL', this.challengeTokenUrl)
+                })
+              }
           })
       })
   }
