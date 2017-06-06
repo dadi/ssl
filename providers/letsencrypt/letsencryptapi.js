@@ -53,17 +53,15 @@ class LetsEncryptAPI {
               this.challengeTokenUrl = `/.well-known/acme-challenge/${httpChallenge.token}`
 
               this.challengeResponse = this.generateChallengeResponse(httpChallenge)
-              console.log(this.challengeResponse)
-              console.log(httpChallenge.uri)
 
               this.requestChallengeCheck(httpChallenge.uri)
                 .then(resp => {
-                  console.log('Acceptance check', resp.statusText)
+                  console.log('Acceptance check', resp)
 
                   // Delay acceptance status check
                   setTimeout(() => {
                     this.checkChallengeStatus(httpChallenge.uri)
-                      .then(resp => console.log('New status', resp.status))
+                      .then(resp => console.log('New status', resp))
                     }, 2000)
                 })
             }
@@ -79,14 +77,14 @@ class LetsEncryptAPI {
       return fetch(url, {
         method: 'POST',
         body: JSON.stringify(body)
-      })
+      }).then(resp => resp.json())
     })
   }
 
   generateChallengeResponse (httpChallenge) {
-    const jwk = this.generateHeader()
-    let thumbprint = util.b64enc(util.JSONDigest(jwk))
-
+    const header = this.generateHeader()
+   
+    let thumbprint = util.b64enc(util.toBuffer(util.JSONDigest(header.jwk)))
     return `${httpChallenge.token}.${thumbprint}`
   }
 
