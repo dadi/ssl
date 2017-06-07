@@ -1,5 +1,6 @@
 'use strict'
 
+const Constants = require('./constants')
 const fetch = require('node-fetch')
 const util = require('../../lib/util')
 
@@ -29,6 +30,22 @@ class LetsEncryptAPI {
     })
   }
 
+  // challengeAll () {
+  //   return Promise.all(this.domainChallenges())
+  // }
+
+  /**
+   * Domain challenges
+   * @return {[type]} [description]
+   */
+  // domainChallenges () {
+  //   return this.opts.domains.map(domain => challenge(domain))
+  // }
+
+  // domainChallenge () {
+  //   return challenge(domain)
+  // }
+
   challenge () {
     return this.generateSignedRequest({
       resource: "new-authz",
@@ -56,16 +73,38 @@ class LetsEncryptAPI {
 
               this.requestChallengeCheck(httpChallenge.uri)
                 .then(resp => {
-                  console.log('Acceptance check', resp)
+                  console.log('Acceptance check', resp.status)
 
                   // Delay acceptance status check
                   setTimeout(() => {
                     this.checkChallengeStatus(httpChallenge.uri)
-                      .then(resp => console.log('New status', resp))
+                      .then(resp => {
+                        if (resp.status === Constants.IS_VALID) {
+                          console.log(`Challenge status: ${resp.status}`)
+                          return this.requestCertificate()
+                            .then(resp => console.log(resp))
+                            .catch(err => console.log(err))
+                        }
+                      })
                     }, 2000)
                 })
             }
           }))
+    })
+  }
+
+  requestCertificate () {
+    const key = util.rsaKeyPair(this.opts.bytes)
+    const csr = util.b64enc(util.generateCSR(key, this.opts.domains))
+
+    return this.generateSignedRequest({
+        resource: 'new-cert',
+        csr: csr
+    }).then(body => {
+      return fetch(this.directories.cert, {
+        method: 'POST',
+        body: JSON.stringify(body)
+      }).then(resp => resp.json())
     })
   }
 
@@ -129,10 +168,8 @@ class LetsEncryptAPI {
   middleware () {
     return (req, res, next) => {
       if (this.challengeTokenUrl) {
-        console.log('MIDDLEWARE', req.url)
         if (req.url === this.challengeTokenUrl) {
           console.log('MATCH FOUND')
-          console.log('write', this.challengeResponse)
           res.write(this.challengeResponse)
           res.end()
         } else {

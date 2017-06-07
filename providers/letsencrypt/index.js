@@ -31,7 +31,7 @@ class LetsEncrypt extends LetsEncryptAPI {
               console.log(`Registration status: ${resp.Status}.\nStarting challenge`)
               this.challenge()
                 .then(resp => {
-                    console.log('challenge URL', this.challengeTokenUrl)
+                    // console.log('challenge URL', this.challengeTokenUrl)
                 })
               }
           })
