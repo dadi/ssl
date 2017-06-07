@@ -6,91 +6,84 @@ const util = require('../../lib/util')
 
 class LetsEncryptAPI {
 
-  constructor () {}
+  constructor () {
+    this.challenges = {} // key>value challenge url responses
+    this.challengeWait = 2000 // How long we wait to check that a challenge was successful
+  }
 
   updateDirectoryList () {
-    return this.requestJSON(this.docUrl)
+    return this.getJson(this.request(this.docUrl))
       .then(dirs => this.directories = dirs)
   }
 
   register () {
     this.key = util.rsa(this.opts.bytes)
-
     return this.generateSignedRequest({
       resource: "new-reg",
       agreement: 'https://letsencrypt.org/documents/LE-SA-v1.1.1-August-1-2016.pdf',
       contact: [`mailto:${this.opts.email}`]
-    }).then(body => {
-
-      return fetch(this.directories.registration, {
-            method: 'POST',
-            body: JSON.stringify(body, null, 2),
-          })
-          .then(resp => resp.json())
     })
+    .then(body => this.getJson(
+      this.request(this.directories.registration, {method:'POST', body: JSON.stringify(body)}))
+    )
   }
 
-  // challengeAll () {
-  //   return Promise.all(this.domainChallenges())
-  // }
+  challengeAll () {
+    return Promise.all(this.domainChallenges())
+  }
 
   /**
    * Domain challenges
    * @return {[type]} [description]
    */
-  // domainChallenges () {
-  //   return this.opts.domains.map(domain => challenge(domain))
-  // }
+  domainChallenges () {
+    return this.opts.domains.map(domain => this.challenge(domain))
+  }
 
-  // domainChallenge () {
-  //   return challenge(domain)
-  // }
-
-  challenge () {
+  challenge (domain) {
     return this.generateSignedRequest({
       resource: "new-authz",
       identifier: {
         type: 'dns',
-        value: this.opts.domains[0]
+        value: domain
       }
-    }).then(body => {
-      return fetch(this.directories.authz, {
-            method: 'POST',
-            body: JSON.stringify(body),
-          })
-          .then(resp => resp.json().then(json => {
-            // Set challenge token for use with middleware.
-            const httpChallenge = json.challenges
-              .find(challenge => challenge.type === 'http-01')
-
-            if (httpChallenge) {
-              console.log("current status", httpChallenge.status)
-
-              // // Temporary check to config challenge status
-              this.challengeTokenUrl = `/.well-known/acme-challenge/${httpChallenge.token}`
-
-              this.challengeResponse = this.generateChallengeResponse(httpChallenge)
-
-              this.requestChallengeCheck(httpChallenge.uri)
-                .then(resp => {
-                  console.log('Acceptance check', resp.status)
-
-                  // Delay acceptance status check
-                  setTimeout(() => {
-                    this.checkChallengeStatus(httpChallenge.uri)
-                      .then(resp => {
-                        if (resp.status === Constants.IS_VALID) {
-                          console.log(`Challenge status: ${resp.status}`)
-                          return this.requestCertificate()
-                            .then(resp => console.log(resp))
-                            .catch(err => console.log(err))
-                        }
-                      })
-                    }, 2000)
-                })
-            }
-          }))
     })
+    .then(body => this.getJson(
+      this.request(this.directories.authz, {method:'POST', body: JSON.stringify(body)}))
+    )
+    .then(json => this.challengeMiddleware(json))
+  }
+
+  challengeMiddleware (resp) {
+    const httpChallenge = this.getHTTPChallenge(resp)
+
+    if (!httpChallenge) return
+
+    this.challenges[httpChallenge.token] = this.generateChallengeResponse(httpChallenge)
+
+    this.requestChallengeCheck(httpChallenge)
+      .then(resp => {
+        console.log('Acceptance check', resp.status)
+        setTimeout(() => {
+          console.log('CHECK CHAPPENGE', httpChallenge.uri)
+          this.checkChallengeStatus(httpChallenge.uri)
+            .then(resp => {
+              console.log(`Challenge status: ${resp.status}`)
+              if (resp.status === Constants.IS_VALID) {
+                // return this.requestCertificate()
+                //   .then(resp => console.log(resp))
+                //   .catch(err => console.log(err))
+              } else {
+                console.log(resp)
+              }
+            })
+        }, this.challengeWait)
+      })
+  }
+
+  getHTTPChallenge (resp) {
+    return resp.challenges
+      .find(challenge => challenge.type === 'http-01')
   }
 
   requestCertificate () {
@@ -100,24 +93,20 @@ class LetsEncryptAPI {
     return this.generateSignedRequest({
         resource: 'new-cert',
         csr: csr
-    }).then(body => {
-      return fetch(this.directories.cert, {
-        method: 'POST',
-        body: JSON.stringify(body)
-      }).then(resp => resp.json())
     })
+    .then(body => this.getJson(
+      this.request(this.directories.cert, {method:'POST', body: JSON.stringify(body)}))
+    )
   }
 
-  requestChallengeCheck (url) {
+  requestChallengeCheck (httpChallenge) {
     return this.generateSignedRequest({
         resource: 'challenge',
-        keyAuthorization: this.challengeResponse
-    }).then(body => {
-      return fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(body)
-      }).then(resp => resp.json())
+        keyAuthorization: this.challenges[httpChallenge.token]
     })
+    .then(body => this.getJson(
+      this.request(httpChallenge.uri, {method:'POST', body: JSON.stringify(body)}))
+    )
   }
 
   generateChallengeResponse (httpChallenge) {
@@ -128,13 +117,12 @@ class LetsEncryptAPI {
   }
 
   checkChallengeStatus (url) {
-    return this.requestJSON(url)
+    return this.getJson(this.request(url))
   }
 
   generateSignedRequest (payload) {
     let body = {}
-
-    return this.fetchNonce()
+    return this.getHeader(this.request(this.docUrl, {method: 'HEAD'}), 'replay-nonce')
       .then(nonce => {
         const payload_buffer = util.toBuffer(JSON.stringify(payload))
         body.payload = util.b64enc(payload_buffer)
@@ -167,14 +155,14 @@ class LetsEncryptAPI {
 
   middleware () {
     return (req, res, next) => {
-      if (this.challengeTokenUrl) {
-        if (req.url === this.challengeTokenUrl) {
-          console.log('MATCH FOUND')
-          res.write(this.challengeResponse)
-          res.end()
-        } else {
-          return next()
-        }
+      let keyMatch = Object.keys(this.challenges)
+      .find(token => req.url === `/.well-known/acme-challenge/${token}`)
+
+      if (keyMatch) {
+        res.write(this.challenges[keyMatch])
+        res.end()
+      } else {
+        return next()
       }
     }
   }
@@ -202,24 +190,19 @@ class LetsEncryptAPI {
   }
 
   /**
-   * Fetch Nonce
-   * With a HEAD request, fetch a single use replay-nonce for signing the request.
-   * @return {String} replay-nonce
-   */
-  fetchNonce () {
-    return fetch(this.docUrl, {
-      method: 'HEAD'
-    })
-      .then(res => res.headers.get('replay-nonce'))
-  }
-
-  /**
    * Request
    * @return {[type]} [description]
    */
-  requestJSON (url) {
-    return fetch(url)
-      .then(res => res.json())
+  request (url, options={method: 'GET'}) {
+    return fetch(url, options)
+  }
+
+  getHeader (req, header) {
+    return req.then(res => res.headers.get('replay-nonce'))
+  }
+
+  getJson (req) {
+    return req.then(res => res.json())
   }
 }
 
