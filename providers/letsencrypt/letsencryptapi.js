@@ -70,11 +70,10 @@ class LetsEncryptAPI {
             .then(resp => {
               console.log(`Challenge status: ${resp.status}`)
               if (resp.status === Constants.IS_VALID) {
-                // return this.requestCertificate()
-                //   .then(resp => console.log(resp))
-                //   .catch(err => console.log(err))
+                return this.requestCertificate()
+                  .then(resp => this.installCertificate(resp))
+                  .catch(err => console.log(err))
               } else {
-                console.log(resp)
               }
             })
         }, this.challengeWait)
@@ -86,6 +85,18 @@ class LetsEncryptAPI {
       .find(challenge => challenge.type === 'http-01')
   }
 
+  installCertificate (resp) {
+    if (resp.status !== 201) {
+      resp.json()
+        .then(json => console.log(json.detail))
+    } else {
+      resp.text()
+        .then(text => {
+          console.log('CERT', text)
+        })
+    }
+  }
+
   requestCertificate () {
     const key = util.rsaKeyPair(this.opts.bytes)
     const csr = util.b64enc(util.generateCSR(key, this.opts.domains))
@@ -94,9 +105,9 @@ class LetsEncryptAPI {
         resource: 'new-cert',
         csr: csr
     })
-    .then(body => this.getJson(
+    .then(body => //this.getText(
       this.request(this.directories.cert, {method:'POST', body: JSON.stringify(body)}))
-    )
+    //)
   }
 
   requestChallengeCheck (httpChallenge) {
@@ -201,6 +212,9 @@ class LetsEncryptAPI {
     return req.then(res => res.headers.get('replay-nonce'))
   }
 
+  getText (req) {
+    return req.then(res => res.text())
+  }
   getJson (req) {
     return req.then(res => res.json())
   }
