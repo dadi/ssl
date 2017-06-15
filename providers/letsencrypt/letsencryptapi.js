@@ -3,6 +3,8 @@
 const Constants = require('./constants')
 const fetch = require('node-fetch')
 const util = require('../../lib/util')
+const fs = require('fs')
+const x509 = require('x509')
 
 class LetsEncryptAPI {
 
@@ -65,14 +67,15 @@ class LetsEncryptAPI {
       .then(resp => {
         console.log('Acceptance check', resp.status)
         setTimeout(() => {
-          console.log('CHECK CHAPPENGE', httpChallenge.uri)
+          console.log('Check challenge', httpChallenge.uri)
           this.checkChallengeStatus(httpChallenge.uri)
             .then(resp => {
               console.log(`Challenge status: ${resp.status}`)
               if (resp.status === Constants.IS_VALID) {
                 return this.requestCertificate()
-                  .then(resp => this.installCertificate(resp))
-                  .catch(err => console.log(err))
+                  .then(chain => {
+                    this.writeFile(`${chain.cert}\n${chain.issuerCert}`, `${this.opts.dir}/chained.pem`)
+                  })
               } else {
               }
             })
@@ -85,29 +88,53 @@ class LetsEncryptAPI {
       .find(challenge => challenge.type === 'http-01')
   }
 
-  installCertificate (resp) {
-    if (resp.status !== 201) {
-      resp.json()
-        .then(json => console.log(json.detail))
-    } else {
-      resp.text()
-        .then(text => {
-          console.log('CERT', text)
-        })
-    }
+  requestCertificate () {
+    return this.newCertificate()
+      .then(res => 
+        this.getFile(res.headers.get('location'))
+          .then(certificate =>
+            this.getFile(this.toIssuerCert(res.headers.get('link')))
+              .then(issuerCert => {
+                return {
+                  cert: util.toPEM(certificate),
+                  issuerCert: util.toPEM(issuerCert)
+                }
+              })
+          )
+      )
   }
 
-  requestCertificate () {
+  newCertificate () {
     const key = util.rsaKeyPair(this.opts.bytes)
+    this.writeFile(`${key.privateKeyPem}\n${key.publicKeyPem}`, `${this.opts.dir}/domain.key`)
     const csr = util.b64enc(util.generateCSR(key, this.opts.domains))
 
     return this.generateSignedRequest({
         resource: 'new-cert',
         csr: csr
     })
-    .then(body => //this.getText(
-      this.request(this.directories.cert, {method:'POST', body: JSON.stringify(body)}))
-    //)
+    .then(body =>
+      this.request(this.directories.newCert, {
+        method:'POST', 
+        body: JSON.stringify(body)
+      }))
+  }
+
+  toIssuerCert (links) {
+    const match = /.*<(.*)>;rel="up".*/.exec(links)
+    return match[1]
+  }
+
+  writeFile (fileContent, filepath) {
+    fs.writeFile(filepath, fileContent, err => {
+      if (err) throw err
+      console.log(`${filepath} created successfully`)
+    }) 
+  }
+
+  getFile (location) {
+    return this.request(location)
+      .then(res => res.buffer())
   }
 
   requestChallengeCheck (httpChallenge) {
@@ -194,7 +221,7 @@ class LetsEncryptAPI {
     this._directories = {
       keyChange: dirs['key-change'],
       authz: dirs['new-authz'],
-      cert: dirs['new-cert'],
+      newCert: dirs['new-cert'],
       registration: dirs['new-reg'],
       revoke: dirs['revoke-cert']
     }
