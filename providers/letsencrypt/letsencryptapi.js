@@ -4,7 +4,6 @@ const Constants = require('./constants')
 const fetch = require('node-fetch')
 const util = require('../../lib/util')
 const fs = require('fs')
-const x509 = require('x509')
 
 class LetsEncryptAPI {
 
