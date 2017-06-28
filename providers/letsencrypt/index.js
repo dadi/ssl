@@ -27,18 +27,16 @@ class LetsEncrypt extends LetsEncryptAPI {
 
     this.updateDirectoryList()
       .then(() => {
-        // console.log('Start registration')
         this.register()
           .then(resp => {
             if (resp.status) {
-              // console.log(`Error: ${resp.detail}`)
-            } else {
-              // console.log(`Registration status: ${resp.Status}.\nStarting challenge`)
-              this.challengeAll()
-                .then(resp => {
-                  // console.log('All challenges active')
-                })
-              }
+              this.addError(resp)
+            } 
+            console.log(`Registration status: ${resp.Status}.\nStarting challenge`)
+            this.challengeAll()
+              .then(resp => {
+                console.log('All challenges active')
+              })
           })
       })
   }

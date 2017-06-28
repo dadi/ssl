@@ -76,13 +76,16 @@ class LetsEncryptAPI {
       .then(resp => {
         if (resp.status === Constants.IS_VALID) {
           return this.requestCertificate()
-            .then(this.storeChainFile)
+            .then(chain => this.storeChainFile(chain))
         } else {
         }
       })
   }
 
   getHTTPChallenge (resp) {
+    if (resp.status === 403) {
+      this.addError(resp)
+    }
     return resp.challenges
       .find(challenge => challenge.type === 'http-01')
   }
@@ -102,20 +105,20 @@ class LetsEncryptAPI {
   requestCertificate () {
     return this.newCertificate()
       .then(res => {
-        if (res.statusText === 'Unknown') {
+        if (!res.headers.get('location')) {
           res.json()
           .then(resp => this.addError(resp))
         } else {
-          this.getFile(res.headers.get('location'))
-            .then(certificate =>
-              this.getFile(this.toIssuerCert(res.headers.get('link')))
+          return this.getFile(res.headers.get('location'))
+            .then(certificate => {
+              return this.getFile(this.toIssuerCert(res.headers.get('link')))
                 .then(issuerCert => {
                   return {
                     cert: util.toPEM(certificate),
                     issuerCert: util.toPEM(issuerCert)
                   }
                 })
-            )
+            })
           }
         }
       )
@@ -144,7 +147,7 @@ class LetsEncryptAPI {
 
   writeFile (fileContent, filepath) {
     fs.writeFile(filepath, fileContent, err => {
-      if (err) throw err
+      if (err) this.addError(err)
       console.log(`${filepath} created successfully`)
     }) 
   }
