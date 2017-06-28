@@ -38,10 +38,12 @@ class LetsEncryptAPI {
    * @return {[type]} [description]
    */
   domainChallenges () {
+    console.log('domainChallenges')
     return this.opts.domains.map(domain => this.challenge(domain))
   }
 
   challenge (domain) {
+    console.log('challenge')
     return this.generateSignedRequest({
       resource: "new-authz",
       identifier: {
@@ -56,6 +58,7 @@ class LetsEncryptAPI {
   }
 
   challengeMiddleware (resp) {
+    console.log('challengeMiddleware')
     const httpChallenge = this.getHTTPChallenge(resp)
 
     if (!httpChallenge) return
@@ -72,17 +75,20 @@ class LetsEncryptAPI {
   }
 
   checkStatus (resp, httpChallenge) {
+    console.log('checkStatus')
     return this.checkChallengeStatus(httpChallenge.uri)
       .then(resp => {
         if (resp.status === Constants.IS_VALID) {
           return this.requestCertificate()
             .then(chain => this.storeChainFile(chain))
         } else {
+          this.addError(resp.error)
         }
       })
   }
 
   getHTTPChallenge (resp) {
+    console.log('getHTTPChallenge')
     if (resp.status === 403) {
       this.addError(resp)
     }
@@ -91,6 +97,7 @@ class LetsEncryptAPI {
   }
 
   storeChainFile (chain) {
+    console.log('storeChainFile')
     if (chain) {
       this.writeFile(`${chain.cert}\n${chain.issuerCert}`, `${this.opts.dir}/chained.pem`)
     } else {
@@ -103,6 +110,7 @@ class LetsEncryptAPI {
   }
 
   requestCertificate () {
+    console.log('requestCertificate')
     return this.newCertificate()
       .then(res => {
         if (!res.headers.get('location')) {
@@ -213,6 +221,7 @@ class LetsEncryptAPI {
 
   middleware () {
     return (req, res, next) => {
+      console.log(`/.well-known/acme-challenge/${token}`)
       let keyMatch = Object.keys(this.challenges)
       .find(token => req.url === `/.well-known/acme-challenge/${token}`)
 
