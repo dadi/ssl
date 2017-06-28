@@ -2,6 +2,7 @@
 
 const Constants = require('./constants')
 const LetsEncryptAPI = require('./letsencryptapi')
+const util = require('../../lib/util')
 
 class LetsEncrypt extends LetsEncryptAPI {
 
@@ -13,12 +14,16 @@ class LetsEncrypt extends LetsEncryptAPI {
    */
   constructor (opts) {
     super()
+    this.opts = opts
+    this.errors = []
+    this.docUrl = opts.env
+    this.renewalOverlapDays = 10
+
     return this
   }
 
-  create (opts) {
-    this.opts = opts
-    this.docUrl = opts.env
+  create () {
+    this.errors = []
 
     this.updateDirectoryList()
       .then(() => {
@@ -31,11 +36,25 @@ class LetsEncrypt extends LetsEncryptAPI {
               console.log(`Registration status: ${resp.Status}.\nStarting challenge`)
               this.challengeAll()
                 .then(resp => {
-                  console.log('Complete')
+                  console.log('All challenges active')
                 })
               }
           })
       })
+  }
+
+  addError (error) {
+    console.log(error)
+    this.errors.push(error)
+  }
+
+  watch () {
+    const cert = util.parseCert(`${this.opts.dir}/chained.pem`)
+    const timeLeft = util.timeLeft(cert.notAfter, this.renewalOverlapDays)
+    console.log('Watch', cert.notAfter)
+
+    util.delay(timeLeft.ms)
+      .then(() => this.create())
   }
 
   get docUrl () {

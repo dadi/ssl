@@ -62,23 +62,23 @@ class LetsEncryptAPI {
 
     this.challenges[httpChallenge.token] = this.generateChallengeResponse(httpChallenge)
 
-    this.requestChallengeCheck(httpChallenge)
+    return this.requestChallengeCheck(httpChallenge)
       .then(resp => {
-        console.log('Acceptance check', resp.status)
-        setTimeout(() => {
-          console.log('Check challenge', httpChallenge.uri)
-          this.checkChallengeStatus(httpChallenge.uri)
-            .then(resp => {
-              console.log(`Challenge status: ${resp.status}`)
-              if (resp.status === Constants.IS_VALID) {
-                return this.requestCertificate()
-                  .then(chain => {
-                    this.writeFile(`${chain.cert}\n${chain.issuerCert}`, `${this.opts.dir}/chained.pem`)
-                  })
-              } else {
-              }
-            })
-        }, this.challengeWait)
+        return util.delay(this.challengeWait)
+          .then(() => {
+            return this.checkStatus(resp, httpChallenge)
+          })
+      })
+  }
+
+  checkStatus (resp, httpChallenge) {
+    return this.checkChallengeStatus(httpChallenge.uri)
+      .then(resp => {
+        if (resp.status === Constants.IS_VALID) {
+          return this.requestCertificate()
+            .then(this.storeChainFile)
+        } else {
+        }
       })
   }
 
@@ -87,19 +87,37 @@ class LetsEncryptAPI {
       .find(challenge => challenge.type === 'http-01')
   }
 
+  storeChainFile (chain) {
+    if (chain) {
+      this.writeFile(`${chain.cert}\n${chain.issuerCert}`, `${this.opts.dir}/chained.pem`)
+    } else {
+      this.addError({err: 'Certificate chain missing'})
+    }
+    // Start watching for renewal
+    if (this.opts.autoRenew) {
+      this.watch()
+    }
+  }
+
   requestCertificate () {
     return this.newCertificate()
-      .then(res => 
-        this.getFile(res.headers.get('location'))
-          .then(certificate =>
-            this.getFile(this.toIssuerCert(res.headers.get('link')))
-              .then(issuerCert => {
-                return {
-                  cert: util.toPEM(certificate),
-                  issuerCert: util.toPEM(issuerCert)
-                }
-              })
-          )
+      .then(res => {
+        if (res.statusText === 'Unknown') {
+          res.json()
+          .then(resp => this.addError(resp))
+        } else {
+          this.getFile(res.headers.get('location'))
+            .then(certificate =>
+              this.getFile(this.toIssuerCert(res.headers.get('link')))
+                .then(issuerCert => {
+                  return {
+                    cert: util.toPEM(certificate),
+                    issuerCert: util.toPEM(issuerCert)
+                  }
+                })
+            )
+          }
+        }
       )
   }
 
