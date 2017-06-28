@@ -27,16 +27,16 @@ class LetsEncrypt extends LetsEncryptAPI {
 
     this.updateDirectoryList()
       .then(() => {
-        console.log('Start registration')
+        // console.log('Start registration')
         this.register()
           .then(resp => {
             if (resp.status) {
-              console.log(`Error: ${resp.detail}`)
+              // console.log(`Error: ${resp.detail}`)
             } else {
-              console.log(`Registration status: ${resp.Status}.\nStarting challenge`)
+              // console.log(`Registration status: ${resp.Status}.\nStarting challenge`)
               this.challengeAll()
                 .then(resp => {
-                  console.log('All challenges active')
+                  // console.log('All challenges active')
                 })
               }
           })
@@ -51,7 +51,7 @@ class LetsEncrypt extends LetsEncryptAPI {
   watch () {
     const cert = util.parseCert(`${this.opts.dir}/chained.pem`)
     const timeLeft = util.timeLeft(cert.notAfter, this.renewalOverlapDays)
-    console.log('Watch', cert.notAfter)
+    // console.log('Watch', cert.notAfter)
 
     util.delay(timeLeft.ms)
       .then(() => this.create())
