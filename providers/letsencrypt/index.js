@@ -3,6 +3,7 @@
 const Constants = require('./constants')
 const LetsEncryptAPI = require('./letsencryptapi')
 const util = require('../../lib/util')
+const progress = require('progress')
 
 class LetsEncrypt extends LetsEncryptAPI {
 
@@ -18,12 +19,20 @@ class LetsEncrypt extends LetsEncryptAPI {
     this.errors = []
     this.docUrl = opts.env
     this.renewalOverlapDays = 10
+    this.dayInMiliseconds = (1000 * 60 * 60 * 24)
 
     return this
   }
 
   create () {
     this.errors = []
+    this.bar = new progress('[:bar]', {
+      total: 10,
+      complete: '=',
+      incomplete: ' ',
+      width: 20
+    })
+    this.bar.interrupt('Creating certificate...')
 
     this.updateDirectoryList()
       .then(() => {
@@ -32,27 +41,36 @@ class LetsEncrypt extends LetsEncryptAPI {
             if (resp.status) {
               this.addError(resp)
             } 
-            console.log(`Registration status: ${resp.Status}.\nStarting challenge`)
             this.challengeAll()
               .then(resp => {
-                console.log('All challenges active')
+                this.bar.complete()
               })
           })
       })
   }
 
   addError (error) {
-    console.log(error)
+    this.bar.interrupt(error.detail ? error.detail : error)
+    this.bar.terminate()
     this.errors.push(error)
   }
 
   watch () {
+    // Force check on launch
+    this.checkAndRenew()
+
+    setInterval(() => {
+      this.checkAndRenew()
+    }, this.dayInMiliseconds)
+  }
+
+  checkAndRenew () {
     const cert = util.parseCert(`${this.opts.dir}/chained.pem`)
     const timeLeft = util.timeLeft(cert.notAfter, this.renewalOverlapDays)
-    // console.log('Watch', cert.notAfter)
 
-    util.delay(timeLeft.ms)
-      .then(() => this.create())
+    if (timeLeft.days < this.renewalOverlapDays) {
+      this.create()
+    }
   }
 
   get docUrl () {

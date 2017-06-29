@@ -18,6 +18,7 @@ class LetsEncryptAPI {
   }
 
   register () {
+    this.bar.tick()
     this.key = util.rsa(this.opts.bytes)
     return this.generateSignedRequest({
       resource: "new-reg",
@@ -30,6 +31,7 @@ class LetsEncryptAPI {
   }
 
   challengeAll () {
+    this.bar.tick()
     return Promise.all(this.domainChallenges())
   }
 
@@ -38,12 +40,13 @@ class LetsEncryptAPI {
    * @return {[type]} [description]
    */
   domainChallenges () {
-    console.log('domainChallenges')
+    this.bar.tick()
     return this.opts.domains.map(domain => this.challenge(domain))
   }
 
   challenge (domain) {
-    console.log('challenge')
+    this.bar.tick()
+    this.bar.interrupt('Creating challenge')
     return this.generateSignedRequest({
       resource: "new-authz",
       identifier: {
@@ -58,7 +61,8 @@ class LetsEncryptAPI {
   }
 
   challengeMiddleware (resp) {
-    console.log('challengeMiddleware')
+    this.bar.tick()
+    this.bar.interrupt('Creating challenge middleware')
     const httpChallenge = this.getHTTPChallenge(resp)
 
     if (!httpChallenge) return
@@ -75,20 +79,20 @@ class LetsEncryptAPI {
   }
 
   checkStatus (resp, httpChallenge) {
-    console.log('checkStatus')
     return this.checkChallengeStatus(httpChallenge.uri)
       .then(resp => {
         if (resp.status === Constants.IS_VALID) {
           return this.requestCertificate()
             .then(chain => this.storeChainFile(chain))
         } else {
-          this.addError(resp.error)
+          this.addError(resp)
         }
       })
   }
 
   getHTTPChallenge (resp) {
-    console.log('getHTTPChallenge')
+    this.bar.tick()
+    this.bar.interrupt('Getting HTTP challenge from response')
     if (resp.status === 403) {
       this.addError(resp)
     }
@@ -97,20 +101,26 @@ class LetsEncryptAPI {
   }
 
   storeChainFile (chain) {
-    console.log('storeChainFile')
+    this.bar.interrupt('Storing chain file')
+    this.bar.tick()
     if (chain) {
       this.writeFile(`${chain.cert}\n${chain.issuerCert}`, `${this.opts.dir}/chained.pem`)
     } else {
       this.addError({err: 'Certificate chain missing'})
     }
+    this.bar.tick()
+    this.bar.interrupt('Complete')
+    this.bar.tick()
     // Start watching for renewal
     if (this.opts.autoRenew) {
+      this.bar.interrupt('Adding certificate watcher')
       this.watch()
     }
+    this.bar.terminate()
   }
 
   requestCertificate () {
-    console.log('requestCertificate')
+    this.bar.tick()
     return this.newCertificate()
       .then(res => {
         if (!res.headers.get('location')) {
@@ -133,6 +143,7 @@ class LetsEncryptAPI {
   }
 
   newCertificate () {
+    this.bar.tick()
     const key = util.rsaKeyPair(this.opts.bytes)
     this.writeFile(`${key.privateKeyPem}\n${key.publicKeyPem}`, `${this.opts.dir}/domain.key`)
     const csr = util.b64enc(util.generateCSR(key, this.opts.domains))
@@ -156,7 +167,6 @@ class LetsEncryptAPI {
   writeFile (fileContent, filepath) {
     fs.writeFile(filepath, fileContent, err => {
       if (err) this.addError(err)
-      console.log(`${filepath} created successfully`)
     }) 
   }
 
@@ -221,7 +231,6 @@ class LetsEncryptAPI {
 
   middleware () {
     return (req, res, next) => {
-      console.log(`/.well-known/acme-challenge/${token}`)
       let keyMatch = Object.keys(this.challenges)
       .find(token => req.url === `/.well-known/acme-challenge/${token}`)
 
