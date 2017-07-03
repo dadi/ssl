@@ -1,11 +1,16 @@
 const util = require(`${__dirname}/../../../lib/util`)
+const moment = require('moment')
 
 jest.mock('mkdirp', (path) => {
   return
 })
 
 jest.mock('x509', () => {
-  return () => {}
+  return () => {
+    return {
+      parseCert: () => {}
+    }
+  }
 })
 
 describe('Util', () => {
@@ -13,14 +18,14 @@ describe('Util', () => {
     expect(util).toBeInstanceOf(Object)
   })
 
-  describe('delay', () => {
+  describe('Delay', () => {
     it('should delay a method call', () => {
       expect.assertions(1)
       return expect(util.delay(1000)).resolves.toBeUndefined()
     })
   })
 
-  describe('createDirectory', () => {
+  describe('Create Directory', () => {
     it('should only allow string', () => {
       expect(util.createDirectory(['/path/to/directory'])).toMatchObject({err: 'Directory must be a string'})
     })
@@ -30,7 +35,7 @@ describe('Util', () => {
     })
   })
 
-  describe('rsa', () => {
+  describe('RSA Generation', () => {
     it('should return an error if the bytelength is not a number', () => {
       expect(util.rsa('foo')).toMatchObject({err: 'Invalid bytelength. Must be a number >= 512'})
     })
@@ -43,13 +48,46 @@ describe('Util', () => {
       expect(util.rsa(2056)).toBeInstanceOf(Object)
     })
   })
+
+  describe('Base 64 Encode', () => {
+    it('should return empty string when buffer is undefined', () => {
+      expect(util.b64enc(undefined)).toBe('')
+    })
+
+    it('should return base64 encoded value from buffer', () => {
+      expect(util.b64enc(new Buffer('foo'))).toBe('Zm9v')
+    })
+  })
+
+  // describe('Parse Certificate', () => {
+  //   it('should return empty string when buffer is undefined', () => {
+  //     expect(util.parseCert('foo')).toBe('')
+  //   })
+  // })
+
+  describe('Time Left', () => {
+    it('should return an Object', () => {
+      expect(util.timeLeft(moment(new Date()).add(1, 'd'), 1)).toBeInstanceOf(Object)
+    })
+
+    it('should return days and ms', () => {
+      expect(util.timeLeft(moment(new Date()).add(1, 'd'), 1)).toMatchObject({days: 0, ms: 0})
+    })
+
+    it('should never return negative values', () => {
+      expect(util.timeLeft(moment(new Date()).subtract(100, 'd'), 0)).toMatchObject({days: 0, ms: 0})
+    })
+
+    it('should return defaults', () => {
+      expect(util.timeLeft()).toMatchObject({days: 0, ms: 0})
+    })
+  })
 })
 
 // createDirectory √
 // delay √
 // rsa √
-// b64enc
-// b64dec
+// b64enc √
 // parseCert
 // timeLeft
 // toBuffer
