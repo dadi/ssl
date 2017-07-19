@@ -187,8 +187,10 @@ class LetsEncryptAPI {
 
   generateChallengeResponse (httpChallenge) {
     const header = this.generateHeader()
-   
-    let thumbprint = util.b64enc(util.toBuffer(util.JSONDigest(header.jwk)))
+    const digest = util.JSONDigest(header.jwk)
+    const buf = util.toBuffer(digest)
+    const thumbprint = util.b64enc(buf)
+
     return `${httpChallenge.token}.${thumbprint}`
   }
 

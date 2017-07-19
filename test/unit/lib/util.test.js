@@ -102,8 +102,8 @@ describe('Util', () => {
   })
 
   describe('toPEM', () => {
-    it('should convert a valid cert into a PEM String', () => {
-      expect(typeof util.toPEM('foo')).toBe('string')
+    it('should convert a valid cert into a PEM object', () => {
+      expect(typeof util.toPEM({})).toBe('string')
     })
 
     it('should throw an error if the passed value is not a string', () => {
@@ -133,9 +133,31 @@ describe('Util', () => {
     })
 
     it('should return a cryptographic digest of a JSON object', () => {
-      expect(util.JSONDigest('foo')).toBeInstanceOf(Buffer)
+      expect(util.JSONDigest({})).toBeInstanceOf(Buffer)
     })
   })
+
+  describe('generateCSR', () => {
+    it('should throw an error if domains are not an array', () => {
+      expect(() => {
+        util.generateCSR()
+      }).toThrowError('Invalid domains. Must be an array')
+    })
+
+    it('should throw an error if keyPair is invalid', () => {
+      expect(() => {
+        util.generateCSR()
+      }).toThrowError('Invalid domains. Must be an array')
+    })
+  })
+
+  // describe('rsaKeyPair', () => {
+    
+  // })
+
+  // describe('b64EncodeBinaryString', () => {
+    
+  // })
 })
 
 // createDirectory √
