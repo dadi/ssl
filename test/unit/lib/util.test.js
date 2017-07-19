@@ -101,6 +101,17 @@ describe('Util', () => {
     })
   })
 
+  describe('toPEM', () => {
+    it('should convert a valid cert into a PEM String', () => {
+      expect(typeof util.toPEM('foo')).toBe('string')
+    })
+
+    it('should throw an error if the passed value is not a string', () => {
+      expect(() => {
+        util.toPEM()
+      }).toThrowError('toPEM requires type of String')
+    })
+  })
 })
 
 // createDirectory √
@@ -109,8 +120,8 @@ describe('Util', () => {
 // b64enc √
 // parseCert
 // timeLeft √
-// toBuffer
-// toPEM
+// toBuffer √
+// toPEM √
 // toStandardB64
 // JSONDigest
 // generateCSR
