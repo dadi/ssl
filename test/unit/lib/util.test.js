@@ -112,6 +112,18 @@ describe('Util', () => {
       }).toThrowError('toPEM requires type of String')
     })
   })
+
+  describe('toStandardB64', () => {
+    it('should return a standardised base64 string', () => {
+      expect(util.toStandardB64('foo-bar_baz=quz')).toBe('foo+bar/bazquz==')
+    })
+
+    it('should throw an error if the passed value is not a string', () => {
+      expect(() => {
+        util.toStandardB64()
+      }).toThrowError('toStandardB64 requires type of String')
+    })
+  })
 })
 
 // createDirectory √
