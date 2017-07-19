@@ -27,7 +27,9 @@ describe('Util', () => {
 
   describe('Create Directory', () => {
     it('should only allow string', () => {
-      expect(util.createDirectory(['/path/to/directory'])).toMatchObject({err: 'Directory must be a string'})
+      expect(() => {
+        util.createDirectory(['/path/to/directory'])
+      }).toThrowError('Directory must be a string')
     })
 
     it('should create a directory', () => {
@@ -37,11 +39,15 @@ describe('Util', () => {
 
   describe('RSA Generation', () => {
     it('should return an error if the bytelength is not a number', () => {
-      expect(util.rsa('foo')).toMatchObject({err: 'Invalid bytelength. Must be a number >= 512'})
+      expect(() => {
+        util.rsa('foo')
+      }).toThrowError('Invalid bytelength. Must be a number >= 512')
     })
 
     it('should return an error if the bytelength is less than 512', () => {
-      expect(util.rsa(511)).toMatchObject({err: 'Invalid bytelength. Must be a number >= 512'})
+      expect(() => {
+        util.rsa(511)
+      }).toThrowError('Invalid bytelength. Must be a number >= 512')
     })
 
     it('should create a valid rsa', () => {
@@ -82,6 +88,19 @@ describe('Util', () => {
       expect(util.timeLeft()).toMatchObject({days: 0, ms: 0})
     })
   })
+
+  describe('To Buffer', () => {
+    it('should convert a string to a buffer', () => {
+      expect(util.toBuffer('foo')).toBeInstanceOf(Buffer)
+    })
+
+    it('should throw an error if the passed value is not a string', () => {
+      expect(() => {
+        util.toBuffer()
+      }).toThrowError('toBuffer requires type of String')
+    })
+  })
+
 })
 
 // createDirectory √
@@ -89,7 +108,7 @@ describe('Util', () => {
 // rsa √
 // b64enc √
 // parseCert
-// timeLeft
+// timeLeft √
 // toBuffer
 // toPEM
 // toStandardB64
