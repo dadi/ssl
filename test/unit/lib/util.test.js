@@ -1,5 +1,6 @@
 const util = require(`${__dirname}/../../../lib/util`)
 const moment = require('moment')
+const ursa = require('ursa')
 
 jest.mock('mkdirp', (path) => {
   return
@@ -144,10 +145,21 @@ describe('Util', () => {
       }).toThrowError('Invalid domains. Must be an array')
     })
 
-    it('should throw an error if keyPair is invalid', () => {
+    it('should throw an error if keyPair is invalid and domains are valid', () => {
       expect(() => {
-        util.generateCSR()
-      }).toThrowError('Invalid domains. Must be an array')
+        util.generateCSR(null, ['ssl.somedomain.tech'])
+      }).toThrowError('Invalid keyPair in generateCSR')
+    })
+
+    it('should not throw an error if valid keypair and domains are passed', () => {
+      const fullKey = ursa.generatePrivateKey(2048, 65537)
+      const key = {
+        privateKeyPem: fullKey.toPrivatePem('utf8'),
+        publicKeyPem: fullKey.toPublicPem('utf8')
+      }
+      expect(() => {
+        util.generateCSR(key, ['ssl.somedomain.tech'])
+      }).not.toThrow()
     })
   })
 
@@ -170,6 +182,6 @@ describe('Util', () => {
 // toPEM √
 // toStandardB64 √
 // JSONDigest √
-// generateCSR
+// generateCSR √
 // rsaKeyPair
 // b64EncodeBinaryString
