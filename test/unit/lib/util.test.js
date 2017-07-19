@@ -124,6 +124,18 @@ describe('Util', () => {
       }).toThrowError('toStandardB64 requires type of String')
     })
   })
+
+  describe('JSONDigest', () => {
+    it('should throw an error if the passed value is not a string', () => {
+      expect(() => {
+        util.JSONDigest()
+      }).toThrowError('JSONDigest requires type of String')
+    })
+
+    it('should return a cryptographic digest of a JSON object', () => {
+      expect(util.JSONDigest('foo')).toBeInstanceOf(Buffer)
+    })
+  })
 })
 
 // createDirectory √
@@ -134,8 +146,8 @@ describe('Util', () => {
 // timeLeft √
 // toBuffer √
 // toPEM √
-// toStandardB64
-// JSONDigest
+// toStandardB64 √
+// JSONDigest √
 // generateCSR
 // rsaKeyPair
 // b64EncodeBinaryString
