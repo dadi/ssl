@@ -69,7 +69,16 @@ describe('SSL', () => {
     })
   })
   describe('provider', () => {
+    it('should not append provider when arguement is invalid', () => {
+      expect(() => {
+        ssl.provider(false)
+      }).toThrowError('Invalid provider. Must be a string')
+    })
 
+    it('should append provider to ssl arguements', () => {
+      ssl.provider('letsencrypt')
+      return expect(ssl.args).toMatchObject({Provider: expect.any(Function)})
+    })
   })
   describe('registerTo', () => {
 
