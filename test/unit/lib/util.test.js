@@ -181,9 +181,17 @@ describe('Util', () => {
     })
   })
 
-  // describe('b64EncodeBinaryString', () => {
-    
-  // })
+  describe('b64EncodeBinaryString', () => {
+    it('should throw an error if value is invalid String', () => {
+      expect(() => {
+        util.b64EncodeBinaryString()
+      }).toThrowError('b64EncodeBinaryString requires type of String')
+    })
+
+    it('should return base64 encoded string', () => {
+      expect(util.b64EncodeBinaryString('foo')).toBe('Zm9v')
+    })
+  })
 })
 
 // createDirectory √
