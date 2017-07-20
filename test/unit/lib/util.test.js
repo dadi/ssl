@@ -163,9 +163,23 @@ describe('Util', () => {
     })
   })
 
-  // describe('rsaKeyPair', () => {
-    
-  // })
+  describe('rsaKeyPair', () => {
+    it('should throw an error if bytelength is invalid', () => {
+      expect(() => {
+        util.rsaKeyPair()
+      }).toThrowError('Invalid bytelength. Must be a number >= 512')
+    })
+
+    it('should return valid privateKey Object', () => {
+      expect(util.rsaKeyPair(512))
+        .toEqual(
+          expect.objectContaining({
+            privateKeyPem: expect.any(String),
+            publicKeyPem: expect.any(String)
+          })
+        )
+    })
+  })
 
   // describe('b64EncodeBinaryString', () => {
     
@@ -183,5 +197,5 @@ describe('Util', () => {
 // toStandardB64 √
 // JSONDigest √
 // generateCSR √
-// rsaKeyPair
+// rsaKeyPair √
 // b64EncodeBinaryString
