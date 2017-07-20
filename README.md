@@ -1,6 +1,6 @@
 # SSL
 
-![coverage](https://img.shields.io/badge/coverage-30%25-red.svg?style=flat?style=flat-square)
+![coverage](https://img.shields.io/badge/coverage-32%25-red.svg?style=flat?style=flat-square)
 
 ```javascript
 

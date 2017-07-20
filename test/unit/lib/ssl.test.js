@@ -39,12 +39,22 @@ describe('SSL', () => {
     })
 
     it('should append domains to ssl arguements', () => {
-      ssl.useDomains(['somdomain.tech'])
+      ssl.useDomains(['somedomain.tech'])
       return expect(ssl.args).toMatchObject({domains: ['somedomain.tech']})
     })
   })
+  
   describe('certificateDir', () => {
+    it('should not append ssl arguements when certificate directory is invalid', () => {
+      expect(() => {
+        ssl.certificateDir(false)
+      }).toThrowError('Invalid directory. Must be a string')
+    })
 
+    it('should append directory to ssl arguements', () => {
+      ssl.certificateDir('/path/to/ssl')
+      return expect(ssl.args).toMatchObject({dir: '/path/to/ssl', createDir: true})
+    })
   })
   describe('useEnvironment', () => {
 
