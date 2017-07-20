@@ -111,7 +111,16 @@ describe('SSL', () => {
     })
   })
   describe('byteLength', () => {
+    it('should not append ssl arguements when bytes is not valid', () => {
+      expect(() => {
+        ssl.byteLength('foo')
+      }).toThrowError('Invalid bytelength. Must be a number >= 512')
+    })
 
+    it('should append bytes to ssl arguements', () => {
+      ssl.byteLength(512)
+      return expect(ssl.args).toMatchObject({bytes: expect.any(Number)})
+    })
   })
   describe('checkAndCreateDirectory', () => {
 
