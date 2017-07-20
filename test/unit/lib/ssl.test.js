@@ -81,7 +81,22 @@ describe('SSL', () => {
     })
   })
   describe('registerTo', () => {
+    it('should not append ssl arguements when email is not a string', () => {
+      expect(() => {
+        ssl.registerTo(false)
+      }).toThrowError('Invalid email. Must be a string')
+    })
 
+    it('should not append ssl arguements when email is invalid', () => {
+      expect(() => {
+        ssl.registerTo('foo')
+      }).toThrowError('Invalid email address')
+    })
+
+    it('should append email to ssl arguements', () => {
+      ssl.registerTo('foo@bar.com')
+      return expect(ssl.args).toMatchObject({email: 'foo@bar.com'})
+    })
   })
   describe('autoRenew', () => {
 
@@ -126,9 +141,9 @@ describe('SSL', () => {
 
 // addOpts √
 // useDomains √
-// certificateDir
-// useEnvironment
-// provider
+// certificateDir √
+// useEnvironment √
+// provider √
 // registerTo
 // autoRenew
 // byteLength
