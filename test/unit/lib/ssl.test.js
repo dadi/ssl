@@ -99,7 +99,16 @@ describe('SSL', () => {
     })
   })
   describe('autoRenew', () => {
+    it('should not append ssl arguements when autoRenew is not a boolean', () => {
+      expect(() => {
+        ssl.autoRenew('foo')
+      }).toThrowError('Invalid autoRenew. Must be a boolean')
+    })
 
+    it('should append autoRenew to ssl arguements', () => {
+      ssl.autoRenew(true)
+      return expect(ssl.args).toMatchObject({autoRenew: expect.any(Boolean)})
+    })
   })
   describe('byteLength', () => {
 
