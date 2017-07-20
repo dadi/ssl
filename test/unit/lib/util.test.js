@@ -206,4 +206,4 @@ describe('Util', () => {
 // JSONDigest √
 // generateCSR √
 // rsaKeyPair √
-// b64EncodeBinaryString
+// b64EncodeBinaryString √
