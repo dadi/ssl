@@ -43,7 +43,7 @@ describe('SSL', () => {
       return expect(ssl.args).toMatchObject({domains: ['somedomain.tech']})
     })
   })
-  
+
   describe('certificateDir', () => {
     it('should not append ssl arguements when certificate directory is invalid', () => {
       expect(() => {
@@ -57,7 +57,16 @@ describe('SSL', () => {
     })
   })
   describe('useEnvironment', () => {
+    it('should not append ssl arguements when environment is invalid', () => {
+      expect(() => {
+        ssl.useEnvironment('foo')
+      }).toThrowError('Invalid environment. Must be staging or production')
+    })
 
+    it('should append environment to ssl arguements', () => {
+      ssl.useEnvironment('staging')
+      return expect(ssl.args).toMatchObject({env: 'staging'})
+    })
   })
   describe('provider', () => {
 
