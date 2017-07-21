@@ -1,6 +1,14 @@
 const SSL = require(`${__dirname}/../../../lib/ssl`)
+const nock = require('nock')
 
 let ssl
+let originalArgs
+
+jest.mock('mkdirp', (path) => {
+  return dir => {
+    return
+  }
+})
 
 jest.mock('x509', () => {
   return () => {
@@ -12,6 +20,7 @@ jest.mock('x509', () => {
 
 beforeEach(() => {
   ssl = new SSL()
+  originalArgs = Object.assign({}, ssl.args)
 })
 
 describe('SSL', () => {
@@ -22,7 +31,7 @@ describe('SSL', () => {
   describe('addOpts', () => {
     it('should not append ssl arguements when arguement is invalid', () => {
       ssl.addOpts()
-      return expect(ssl.args).toMatchObject({})
+      return expect(ssl.args).toMatchObject(originalArgs)
     })
 
     it('should append ssl arguements', () => {
@@ -56,6 +65,7 @@ describe('SSL', () => {
       return expect(ssl.args).toMatchObject({dir: '/path/to/ssl', createDir: true})
     })
   })
+
   describe('useEnvironment', () => {
     it('should not append ssl arguements when environment is invalid', () => {
       expect(() => {
@@ -68,6 +78,7 @@ describe('SSL', () => {
       return expect(ssl.args).toMatchObject({env: 'staging'})
     })
   })
+
   describe('provider', () => {
     it('should not append provider when arguement is invalid', () => {
       expect(() => {
@@ -80,6 +91,7 @@ describe('SSL', () => {
       return expect(ssl.args).toMatchObject({Provider: expect.any(Function)})
     })
   })
+
   describe('registerTo', () => {
     it('should not append ssl arguements when email is not a string', () => {
       expect(() => {
@@ -98,6 +110,7 @@ describe('SSL', () => {
       return expect(ssl.args).toMatchObject({email: 'foo@bar.com'})
     })
   })
+
   describe('autoRenew', () => {
     it('should not append ssl arguements when autoRenew is not a boolean', () => {
       expect(() => {
@@ -110,6 +123,7 @@ describe('SSL', () => {
       return expect(ssl.args).toMatchObject({autoRenew: expect.any(Boolean)})
     })
   })
+
   describe('byteLength', () => {
     it('should not append ssl arguements when bytes is not valid', () => {
       expect(() => {
@@ -122,8 +136,17 @@ describe('SSL', () => {
       return expect(ssl.args).toMatchObject({bytes: expect.any(Number)})
     })
   })
-  describe('checkAndCreateDirectory', () => {
 
+  describe('checkAndCreateDirectory', () => {
+    it('should return a Promise if no directory is not previously specified', () => {
+      ssl.certificateDir(ssl.args.dir)
+      return expect(ssl.checkAndCreateDirectory()).toBeInstanceOf(Promise)
+    })
+
+    it('should return undefined if `createDir` is false', () => {
+      ssl.certificateDir(null, false)
+      return expect(ssl.checkAndCreateDirectory()).toBeUndefined()
+    })
   })
   describe('getPort', () => {
 
@@ -144,7 +167,24 @@ describe('SSL', () => {
 
   })
   describe('useListeningServer', () => {
+    it('should throw an error if the listening server is not running on correct port (80)', () => {
+      const listeningServer = nock(`http://127.0.0.1:81`)
+      expect(() => {
+        ssl.useListeningServer(listeningServer)
+      }).toThrowError('Invalid listening server. Must be running on port 80')
+    })
 
+    it('should append ssl.args with listening server when server is running on correct port (80)', () => {
+      const listeningServer = nock(`http://127.0.0.1`)
+      ssl.useListeningServer(listeningServer)
+      expect(ssl.args.listeningServer).toMatchObject(listeningServer)
+    })
+
+    it('should throw an error when listening server is not defined', () => {
+      expect(() => {
+        ssl.useListeningServer()
+      }).toThrowError('Invalid listening server. Must be server running on port 80')
+    })
   })
   describe('useSecureServer', () => {
 
@@ -162,10 +202,10 @@ describe('SSL', () => {
 // certificateDir √
 // useEnvironment √
 // provider √
-// registerTo
-// autoRenew
-// byteLength
-// checkAndCreateDirectory
+// registerTo √
+// autoRenew √
+// byteLength √
+// checkAndCreateDirectory √
 // getPort
 // getKey
 // getCertificate
