@@ -4,6 +4,10 @@ const nock = require('nock')
 let ssl
 let originalArgs
 
+const use = () => {
+
+}
+
 jest.mock('mkdirp', (path) => {
   return dir => {
     return
@@ -31,12 +35,12 @@ describe('SSL', () => {
   describe('addOpts', () => {
     it('should not append ssl arguements when arguement is invalid', () => {
       ssl.addOpts()
-      return expect(ssl.args).toMatchObject(originalArgs)
+      expect(ssl.args).toMatchObject(originalArgs)
     })
 
     it('should append ssl arguements', () => {
       ssl.addOpts({foo: 'bar'})
-      return expect(ssl.args).toMatchObject({foo: 'bar'})
+      expect(ssl.args).toMatchObject({foo: 'bar'})
     })
   })
 
@@ -49,7 +53,7 @@ describe('SSL', () => {
 
     it('should append domains to ssl arguements', () => {
       ssl.useDomains(['somedomain.tech'])
-      return expect(ssl.args).toMatchObject({domains: ['somedomain.tech']})
+      expect(ssl.args).toMatchObject({domains: ['somedomain.tech']})
     })
   })
 
@@ -62,7 +66,7 @@ describe('SSL', () => {
 
     it('should append directory to ssl arguements', () => {
       ssl.certificateDir('/path/to/ssl')
-      return expect(ssl.args).toMatchObject({dir: '/path/to/ssl', createDir: true})
+      expect(ssl.args).toMatchObject({dir: '/path/to/ssl', createDir: true})
     })
   })
 
@@ -75,7 +79,7 @@ describe('SSL', () => {
 
     it('should append environment to ssl arguements', () => {
       ssl.useEnvironment('staging')
-      return expect(ssl.args).toMatchObject({env: 'staging'})
+      expect(ssl.args).toMatchObject({env: 'staging'})
     })
   })
 
@@ -88,7 +92,7 @@ describe('SSL', () => {
 
     it('should append provider to ssl arguements', () => {
       ssl.provider('letsencrypt')
-      return expect(ssl.args).toMatchObject({Provider: expect.any(Function)})
+      expect(ssl.args).toMatchObject({Provider: expect.any(Function)})
     })
   })
 
@@ -107,7 +111,7 @@ describe('SSL', () => {
 
     it('should append email to ssl arguements', () => {
       ssl.registerTo('foo@bar.com')
-      return expect(ssl.args).toMatchObject({email: 'foo@bar.com'})
+      expect(ssl.args).toMatchObject({email: 'foo@bar.com'})
     })
   })
 
@@ -120,7 +124,7 @@ describe('SSL', () => {
 
     it('should append autoRenew to ssl arguements', () => {
       ssl.autoRenew(true)
-      return expect(ssl.args).toMatchObject({autoRenew: expect.any(Boolean)})
+      expect(ssl.args).toMatchObject({autoRenew: expect.any(Boolean)})
     })
   })
 
@@ -133,19 +137,19 @@ describe('SSL', () => {
 
     it('should append bytes to ssl arguements', () => {
       ssl.byteLength(512)
-      return expect(ssl.args).toMatchObject({bytes: expect.any(Number)})
+      expect(ssl.args).toMatchObject({bytes: expect.any(Number)})
     })
   })
 
   describe('checkAndCreateDirectory', () => {
     it('should return a Promise if no directory is not previously specified', () => {
       ssl.certificateDir(ssl.args.dir)
-      return expect(ssl.checkAndCreateDirectory()).toBeInstanceOf(Promise)
+      expect(ssl.checkAndCreateDirectory()).toBeInstanceOf(Promise)
     })
 
     it('should return undefined if `createDir` is false', () => {
       ssl.certificateDir(null, false)
-      return expect(ssl.checkAndCreateDirectory()).toBeUndefined()
+      expect(ssl.checkAndCreateDirectory()).toBeUndefined()
     })
   })
   describe('getPort', () => {
@@ -225,7 +229,27 @@ describe('SSL', () => {
 
   })
   describe('start', () => {
+    it('should throw an error if listening server is not valid', () => {
+      expect(() => {
+        ssl.start()
+      }).toThrowError('Listening server must be present in order to add middleware')
+    })
 
+    it('should throw an error if the listening server does not support middleware', () => {
+      const listeningServer = nock(`http://127.0.0.1`)
+      ssl.useListeningServer(listeningServer)
+
+      expect(() => {
+        ssl.start()
+      }).toThrowError('Listening server does not support middleware')
+    })
+
+    it('should return undefined if server is valid', () => {
+      const listeningServer = nock(`http://127.0.0.1`)
+      listeningServer.use = use
+      ssl.useListeningServer(listeningServer)
+      expect(ssl.start()).toBeUndefined()
+    })
   })
 })
 
@@ -246,5 +270,12 @@ describe('SSL', () => {
 // getFile
 // useListeningServer √
 // useSecureServer √
-// addMiddleware
+// addMiddleware √
 // start
+
+/*
+describe('start', () => {
+    it('should ...', () => {
+     
+  })
+ */
