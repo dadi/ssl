@@ -208,6 +208,20 @@ describe('SSL', () => {
     })
   })
   describe('addMiddleware', () => {
+    it('should throw an error if there is no listeningServer set', () => {
+      expect(() => {
+        ssl.addMiddleware()
+      }).toThrowError('Listening server must be present in order to add middleware')
+    })
+    it('should throw an error if there is a valid listening server but no middleware', () => {
+      const listeningServer = nock(`http://127.0.0.1`)
+      ssl.useListeningServer(listeningServer)
+      ssl.provider('letsencrypt')
+
+      expect(() => {
+        ssl.addMiddleware()
+      }).toThrowError('Cannot add middleware without a provider')
+    })
 
   })
   describe('start', () => {

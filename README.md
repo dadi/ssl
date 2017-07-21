@@ -1,6 +1,6 @@
 # DADI SSL
 
-![coverage](https://img.shields.io/badge/coverage-42%25-red.svg?style=flat?style=flat-square)
+![coverage](https://img.shields.io/badge/coverage-43%25-red.svg?style=flat?style=flat-square)
 
 ```javascript
 
