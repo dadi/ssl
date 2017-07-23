@@ -1,13 +1,13 @@
 <?xml version="1.0" ?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage lines-valid="293" lines-covered="172" line-rate="0.5870000000000001" branches-valid="124" branches-covered="83" branch-rate="0.6694" timestamp="1500640255497" complexity="0" version="0.1">
+<coverage lines-valid="293" lines-covered="171" line-rate="0.5836" branches-valid="126" branches-covered="85" branch-rate="0.6746" timestamp="1500808350906" complexity="0" version="0.1">
   <sources>
     <source>/dadi/app/ssl</source>
   </sources>
   <packages>
-    <package name="lib" line-rate="0.9333" branch-rate="0.8181999999999999">
+    <package name="lib" line-rate="0.9267" branch-rate="0.8218000000000001">
       <classes>
-        <class name="ssl.js" filename="lib/ssl.js" line-rate="0.8902" branch-rate="0.75">
+        <class name="ssl.js" filename="lib/ssl.js" line-rate="0.878" branch-rate="0.7570999999999999">
           <methods>
             <method name="(anonymous_0)" hits="31" signature="()V">
               <lines>
@@ -111,7 +111,7 @@
             </method>
             <method name="(anonymous_20)" hits="31" signature="()V">
               <lines>
-                <line number="218" hits="31"/>
+                <line number="209" hits="31"/>
               </lines>
             </method>
           </methods>
@@ -171,10 +171,10 @@
             <line number="153" hits="2" branch="true" condition-coverage="75% (3/4)"/>
             <line number="154" hits="0" branch="false"/>
             <line number="157" hits="1" branch="false"/>
-            <line number="158" hits="6" branch="true" condition-coverage="100% (4/4)"/>
+            <line number="158" hits="6" branch="true" condition-coverage="100% (5/5)"/>
             <line number="159" hits="4" branch="false"/>
             <line number="162" hits="1" branch="false"/>
-            <line number="163" hits="3" branch="true" condition-coverage="100% (4/4)"/>
+            <line number="163" hits="3" branch="true" condition-coverage="100% (5/5)"/>
             <line number="164" hits="1" branch="false"/>
             <line number="167" hits="1" branch="false"/>
             <line number="168" hits="5" branch="true" condition-coverage="100% (2/2)"/>
@@ -186,18 +186,18 @@
             <line number="177" hits="1" branch="false"/>
             <line number="185" hits="1" branch="false"/>
             <line number="186" hits="3" branch="false"/>
-            <line number="191" hits="3" branch="false"/>
+            <line number="188" hits="3" branch="false"/>
+            <line number="192" hits="1" branch="false"/>
+            <line number="194" hits="1" branch="false"/>
             <line number="195" hits="1" branch="false"/>
-            <line number="197" hits="1" branch="false"/>
-            <line number="198" hits="1" branch="false"/>
-            <line number="206" hits="1" branch="true" condition-coverage="50% (2/4)"/>
-            <line number="207" hits="0" branch="true" condition-coverage="0% (0/2)"/>
-            <line number="208" hits="0" branch="false"/>
-            <line number="212" hits="1" branch="false"/>
+            <line number="198" hits="1" branch="true" condition-coverage="50% (2/4)"/>
+            <line number="199" hits="0" branch="true" condition-coverage="0% (0/2)"/>
+            <line number="200" hits="0" branch="false"/>
+            <line number="202" hits="0" branch="false"/>
+            <line number="204" hits="1" branch="false"/>
+            <line number="209" hits="1" branch="false"/>
+            <line number="210" hits="31" branch="false"/>
             <line number="213" hits="1" branch="false"/>
-            <line number="218" hits="1" branch="false"/>
-            <line number="219" hits="31" branch="false"/>
-            <line number="222" hits="1" branch="false"/>
           </lines>
         </class>
         <class name="util.js" filename="lib/util.js" line-rate="0.9853000000000001" branch-rate="0.9677">
