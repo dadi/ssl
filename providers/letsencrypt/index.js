@@ -32,7 +32,7 @@ class LetsEncrypt extends LetsEncryptAPI {
       incomplete: ' ',
       width: 20
     })
-    this.bar.interrupt('Creating certificate...')
+    this.updateBar('Creating certificate...')
 
     this.updateDirectoryList()
       .then(() => {
@@ -51,10 +51,16 @@ class LetsEncrypt extends LetsEncryptAPI {
   }
 
   addError (error) {
-     this.bar.interrupt(error.detail ? error.detail : error)
-     this.bar.terminate()
-     this.errors.push(error)
-   }
+    this.updateBar(error.detail ? error.detail : error)
+    this.bar.terminate()
+    this.errors.push(error)
+  }
+
+  updateBar (msg) {
+    if (process.env.NODE_ENV === 'development') {
+      this.bar.interrupt(msg)
+    }
+  }
 
   watch () {
     // Force check on launch

@@ -45,7 +45,7 @@ class LetsEncryptAPI {
 
   challenge (domain) {
     this.bar.tick()
-    this.bar.interrupt('Creating challenge')
+    this.updateBar('Creating challenge')
     return this.generateSignedRequest({
       resource: 'new-authz',
       identifier: {
@@ -61,7 +61,7 @@ class LetsEncryptAPI {
 
   challengeMiddleware (resp) {
     this.bar.tick()
-    this.bar.interrupt('Creating challenge middleware')
+    this.updateBar('Creating challenge middleware')
     const httpChallenge = this.getHTTPChallenge(resp)
 
     if (!httpChallenge) return
@@ -92,7 +92,7 @@ class LetsEncryptAPI {
 
   getHTTPChallenge (resp) {
     this.bar.tick()
-    this.bar.interrupt('Getting HTTP challenge from response')
+    this.updateBar('Getting HTTP challenge from response')
     if (resp.status === 403) {
       this.addError(resp)
       // throw new Error(resp)
@@ -102,7 +102,7 @@ class LetsEncryptAPI {
   }
 
   storeChainFile (chain) {
-    this.bar.interrupt('Storing chain file')
+    this.updateBar('Storing chain file')
     this.bar.tick()
     if (chain) {
       this.writeFile(`${chain.cert}\n${chain.issuerCert}`, `${this.opts.dir}/chained.pem`)
@@ -111,11 +111,11 @@ class LetsEncryptAPI {
       // throw new Error('Certificate chain missing')
     }
     this.bar.tick()
-    this.bar.interrupt('Complete')
+    this.updateBar('Complete')
     this.bar.tick()
     // Start watching for renewal
     if (this.opts.autoRenew) {
-      this.bar.interrupt('Adding certificate watcher')
+      this.updateBar('Adding certificate watcher')
       this.watch()
     }
     this.bar.terminate()

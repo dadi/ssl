@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage lines-valid="289" lines-covered="170" line-rate="0.5882000000000001" branches-valid="122" branches-covered="85" branch-rate="0.6967" timestamp="1500904314363" complexity="0" version="0.1">
+<coverage lines-valid="290" lines-covered="171" line-rate="0.5897" branches-valid="122" branches-covered="85" branch-rate="0.6967" timestamp="1500904718700" complexity="0" version="0.1">
   <sources>
     <source>/dadi/app/ssl</source>
   </sources>
@@ -360,7 +360,7 @@
         </class>
       </classes>
     </package>
-    <package name="providers.letsencrypt" line-rate="0.2143" branch-rate="0.08">
+    <package name="providers.letsencrypt" line-rate="0.21989999999999998" branch-rate="0.08">
       <classes>
         <class name="constants.js" filename="providers/letsencrypt/constants.js" line-rate="1" branch-rate="1">
           <methods>
@@ -369,7 +369,7 @@
             <line number="3" hits="1" branch="false"/>
           </lines>
         </class>
-        <class name="index.js" filename="providers/letsencrypt/index.js" line-rate="0.5625" branch-rate="0.125">
+        <class name="index.js" filename="providers/letsencrypt/index.js" line-rate="0.5758" branch-rate="0.125">
           <methods>
             <method name="(anonymous_0)" hits="3" signature="()V">
               <lines>
@@ -401,9 +401,9 @@
                 <line number="53" hits="0"/>
               </lines>
             </method>
-            <method name="(anonymous_6)" hits="0" signature="()V">
+            <method name="(anonymous_6)" hits="1" signature="()V">
               <lines>
-                <line number="59" hits="0"/>
+                <line number="59" hits="1"/>
               </lines>
             </method>
             <method name="(anonymous_7)" hits="0" signature="()V">
@@ -413,17 +413,22 @@
             </method>
             <method name="(anonymous_8)" hits="0" signature="()V">
               <lines>
-                <line number="68" hits="0"/>
+                <line number="67" hits="0"/>
               </lines>
             </method>
-            <method name="(anonymous_9)" hits="1" signature="()V">
+            <method name="(anonymous_9)" hits="0" signature="()V">
               <lines>
-                <line number="77" hits="1"/>
+                <line number="72" hits="0"/>
               </lines>
             </method>
-            <method name="(anonymous_10)" hits="3" signature="()V">
+            <method name="(anonymous_10)" hits="1" signature="()V">
               <lines>
-                <line number="81" hits="3"/>
+                <line number="81" hits="1"/>
+              </lines>
+            </method>
+            <method name="(anonymous_11)" hits="3" signature="()V">
+              <lines>
+                <line number="85" hits="3"/>
               </lines>
             </method>
           </methods>
@@ -450,16 +455,17 @@
             <line number="54" hits="0" branch="true" condition-coverage="0% (0/2)"/>
             <line number="55" hits="0" branch="false"/>
             <line number="56" hits="0" branch="false"/>
-            <line number="61" hits="0" branch="false"/>
-            <line number="63" hits="0" branch="false"/>
-            <line number="64" hits="0" branch="false"/>
-            <line number="69" hits="0" branch="false"/>
-            <line number="70" hits="0" branch="false"/>
-            <line number="72" hits="0" branch="true" condition-coverage="0% (0/2)"/>
+            <line number="60" hits="1" branch="false"/>
+            <line number="65" hits="0" branch="false"/>
+            <line number="67" hits="0" branch="false"/>
+            <line number="68" hits="0" branch="false"/>
             <line number="73" hits="0" branch="false"/>
-            <line number="78" hits="1" branch="false"/>
-            <line number="82" hits="3" branch="true" condition-coverage="50% (1/2)"/>
-            <line number="88" hits="1" branch="false"/>
+            <line number="74" hits="0" branch="false"/>
+            <line number="76" hits="0" branch="true" condition-coverage="0% (0/2)"/>
+            <line number="77" hits="0" branch="false"/>
+            <line number="82" hits="1" branch="false"/>
+            <line number="86" hits="3" branch="true" condition-coverage="50% (1/2)"/>
+            <line number="92" hits="1" branch="false"/>
           </lines>
         </class>
         <class name="letsencryptapi.js" filename="providers/letsencrypt/letsencryptapi.js" line-rate="0.10279999999999999" branch-rate="0.0588">
