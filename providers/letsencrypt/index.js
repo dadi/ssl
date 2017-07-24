@@ -36,7 +36,6 @@ class LetsEncrypt extends LetsEncryptAPI {
 
     this.updateDirectoryList()
       .then(() => {
-        console.log('REGISTER')
         this.register()
           .then(resp => {
             if (resp.status) {
