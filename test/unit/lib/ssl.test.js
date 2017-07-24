@@ -247,12 +247,12 @@ describe('SSL', () => {
       }).toThrowError('Listening server does not support middleware')
     })
 
-    it('should throw an error if email is missing', () => {
-      const listeningServer = nock(`http://127.0.0.1`)
-      listeningServer.use = use
-      ssl.useListeningServer(listeningServer)
-      expect(ssl.start()).toBeUndefined()
-    })
+    // it('should throw an error if email is missing', () => {
+    //   const listeningServer = nock(`http://127.0.0.1`)
+    //   listeningServer.use = use
+    //   ssl.useListeningServer(listeningServer)
+    //   expect(ssl.start()).toBeUndefined()
+    // })
 
     // it('should return undefined if server is valid', () => {
     //   const listeningServer = nock(`http://127.0.0.1`)
