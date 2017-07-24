@@ -84,7 +84,8 @@ class LetsEncryptAPI {
           return this.requestCertificate()
             .then(chain => this.storeChainFile(chain))
         } else {
-          throw new Error(resp)
+          this.addError(resp)
+          // throw new Error(resp)
         }
       })
   }
@@ -93,7 +94,8 @@ class LetsEncryptAPI {
     this.bar.tick()
     this.bar.interrupt('Getting HTTP challenge from response')
     if (resp.status === 403) {
-      throw new Error(resp)
+      this.addError(resp)
+      // throw new Error(resp)
     }
     return resp.challenges
       .find(challenge => challenge.type === 'http-01')
@@ -105,7 +107,8 @@ class LetsEncryptAPI {
     if (chain) {
       this.writeFile(`${chain.cert}\n${chain.issuerCert}`, `${this.opts.dir}/chained.pem`)
     } else {
-      throw new Error('Certificate chain missing')
+      this.addError({err: 'Certificate chain missing'})
+      // throw new Error('Certificate chain missing')
     }
     this.bar.tick()
     this.bar.interrupt('Complete')
@@ -125,7 +128,8 @@ class LetsEncryptAPI {
         if (!res.headers.get('location')) {
           res.json()
             .then(resp => {
-              throw new Error(resp)
+              this.addError(resp)
+              // throw new Error(resp)
             })
         } else {
           return this.getFile(res.headers.get('location'))
@@ -167,7 +171,8 @@ class LetsEncryptAPI {
 
   writeFile (fileContent, filepath) {
     fs.writeFile(filepath, fileContent, err => {
-      if (err) throw new Error(err)
+      if (err) this.addError(err)
+      // if (err) throw new Error(err)
     })
   }
 

@@ -14,8 +14,8 @@ class LetsEncrypt extends LetsEncryptAPI {
    */
   constructor (opts) {
     super()
-    this.opts = opts
     this.errors = []
+    this.opts = opts
     this.docUrl = opts.env
     this.renewalOverlapDays = 10
     this.dayInMiliseconds = (1000 * 60 * 60 * 24)
@@ -25,6 +25,7 @@ class LetsEncrypt extends LetsEncryptAPI {
 
   create () {
     this.errors = []
+
     this.bar = new progress('[:bar]', {
       total: 10,
       complete: '=',
@@ -35,18 +36,26 @@ class LetsEncrypt extends LetsEncryptAPI {
 
     this.updateDirectoryList()
       .then(() => {
+        console.log('REGISTER')
         this.register()
           .then(resp => {
             if (resp.status) {
-              throw new Error(resp)
+              this.addError(resp)
+              // throw new Error(resp)
             }
             this.challengeAll()
               .then(resp => {
-                this.bar.complete()
+                // this.bar.complete()
               })
           })
       })
   }
+
+  addError (error) {
+     this.bar.interrupt(error.detail ? error.detail : error)
+     this.bar.terminate()
+     this.errors.push(error)
+   }
 
   watch () {
     // Force check on launch

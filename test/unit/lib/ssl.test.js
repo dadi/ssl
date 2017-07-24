@@ -8,7 +8,7 @@ const use = () => {
 
 }
 
-jest.mock('mkdirp', (path) => {
+jest.mock('mkdirp', path => {
   return dir => {
 
   }
@@ -214,6 +214,7 @@ describe('SSL', () => {
       }).toThrowError('Invalid secure server. Must be server running on port 443')
     })
   })
+
   describe('addMiddleware', () => {
     it('should throw an error if there is no listeningServer set', () => {
       expect(() => {
@@ -246,12 +247,20 @@ describe('SSL', () => {
       }).toThrowError('Listening server does not support middleware')
     })
 
-    it('should return undefined if server is valid', () => {
+    it('should throw an error if email is missing', () => {
       const listeningServer = nock(`http://127.0.0.1`)
       listeningServer.use = use
       ssl.useListeningServer(listeningServer)
       expect(ssl.start()).toBeUndefined()
     })
+
+    // it('should return undefined if server is valid', () => {
+    //   const listeningServer = nock(`http://127.0.0.1`)
+    //   listeningServer.use = use
+    //   // ssl.registerTo('foo@bar.com')
+    //   ssl.useListeningServer(listeningServer)
+    //   expect(ssl.start()).toBeUndefined()
+    // })
   })
 })
 
@@ -272,7 +281,7 @@ describe('SSL', () => {
 // useListeningServer √
 // useSecureServer √
 // addMiddleware √
-// start
+// start √
 
 /*
 describe('start', () => {

@@ -2,8 +2,10 @@ const util = require(`${__dirname}/../../../lib/util`)
 const moment = require('moment')
 const ursa = require('ursa')
 
-jest.mock('mkdirp', (path) => {
+jest.mock('mkdirp', path => {
+  return dir => {
 
+  }
 })
 
 jest.mock('x509', () => {
