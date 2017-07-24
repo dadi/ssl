@@ -6,7 +6,6 @@ const util = require('../../lib/util')
 const fs = require('fs')
 
 class LetsEncryptAPI {
-
   constructor () {
     this.challenges = {} // key>value challenge url responses
     this.challengeWait = 2000 // How long we wait to check that a challenge was successful
@@ -21,12 +20,12 @@ class LetsEncryptAPI {
     this.bar.tick()
     this.key = util.rsa(this.opts.bytes)
     return this.generateSignedRequest({
-      resource: "new-reg",
+      resource: 'new-reg',
       agreement: 'https://letsencrypt.org/documents/LE-SA-v1.1.1-August-1-2016.pdf',
       contact: [`mailto:${this.opts.email}`]
     })
     .then(body => this.getJson(
-      this.request(this.directories.registration, {method:'POST', body: JSON.stringify(body)}))
+      this.request(this.directories.registration, {method: 'POST', body: JSON.stringify(body)}))
     )
   }
 
@@ -48,14 +47,14 @@ class LetsEncryptAPI {
     this.bar.tick()
     this.bar.interrupt('Creating challenge')
     return this.generateSignedRequest({
-      resource: "new-authz",
+      resource: 'new-authz',
       identifier: {
         type: 'dns',
         value: domain
       }
     })
     .then(body => this.getJson(
-      this.request(this.directories.authz, {method:'POST', body: JSON.stringify(body)}))
+      this.request(this.directories.authz, {method: 'POST', body: JSON.stringify(body)}))
     )
     .then(json => this.challengeMiddleware(json))
   }
@@ -85,7 +84,7 @@ class LetsEncryptAPI {
           return this.requestCertificate()
             .then(chain => this.storeChainFile(chain))
         } else {
-          this.addError(resp)
+          throw new Error(resp)
         }
       })
   }
@@ -94,7 +93,7 @@ class LetsEncryptAPI {
     this.bar.tick()
     this.bar.interrupt('Getting HTTP challenge from response')
     if (resp.status === 403) {
-      this.addError(resp)
+      throw new Error(resp)
     }
     return resp.challenges
       .find(challenge => challenge.type === 'http-01')
@@ -106,7 +105,7 @@ class LetsEncryptAPI {
     if (chain) {
       this.writeFile(`${chain.cert}\n${chain.issuerCert}`, `${this.opts.dir}/chained.pem`)
     } else {
-      this.addError({err: 'Certificate chain missing'})
+      throw new Error('Certificate chain missing')
     }
     this.bar.tick()
     this.bar.interrupt('Complete')
@@ -125,7 +124,9 @@ class LetsEncryptAPI {
       .then(res => {
         if (!res.headers.get('location')) {
           res.json()
-          .then(resp => this.addError(resp))
+            .then(resp => {
+              throw new Error(resp)
+            })
         } else {
           return this.getFile(res.headers.get('location'))
             .then(certificate => {
@@ -137,8 +138,8 @@ class LetsEncryptAPI {
                   }
                 })
             })
-          }
         }
+      }
       )
   }
 
@@ -149,12 +150,12 @@ class LetsEncryptAPI {
     const csr = util.b64enc(util.generateCSR(key, this.opts.domains))
 
     return this.generateSignedRequest({
-        resource: 'new-cert',
-        csr: csr
+      resource: 'new-cert',
+      csr: csr
     })
     .then(body =>
       this.request(this.directories.newCert, {
-        method:'POST', 
+        method: 'POST',
         body: JSON.stringify(body)
       }))
   }
@@ -166,8 +167,8 @@ class LetsEncryptAPI {
 
   writeFile (fileContent, filepath) {
     fs.writeFile(filepath, fileContent, err => {
-      if (err) this.addError(err)
-    }) 
+      if (err) throw new Error(err)
+    })
   }
 
   getFile (location) {
@@ -177,11 +178,11 @@ class LetsEncryptAPI {
 
   requestChallengeCheck (httpChallenge) {
     return this.generateSignedRequest({
-        resource: 'challenge',
-        keyAuthorization: this.challenges[httpChallenge.token]
+      resource: 'challenge',
+      keyAuthorization: this.challenges[httpChallenge.token]
     })
     .then(body => this.getJson(
-      this.request(httpChallenge.uri, {method:'POST', body: JSON.stringify(body)}))
+      this.request(httpChallenge.uri, {method: 'POST', body: JSON.stringify(body)}))
     )
   }
 
@@ -271,7 +272,7 @@ class LetsEncryptAPI {
    * Request
    * @return {[type]} [description]
    */
-  request (url, options={method: 'GET'}) {
+  request (url, options = {method: 'GET'}) {
     return fetch(url, options)
   }
 

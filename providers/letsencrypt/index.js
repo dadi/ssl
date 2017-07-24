@@ -6,7 +6,6 @@ const util = require('../../lib/util')
 const progress = require('progress')
 
 class LetsEncrypt extends LetsEncryptAPI {
-
   /**
    * @constructor
    * @param  {Boolean} options.agreeTos Agree to Terms of Service.
@@ -39,20 +38,14 @@ class LetsEncrypt extends LetsEncryptAPI {
         this.register()
           .then(resp => {
             if (resp.status) {
-              this.addError(resp)
-            } 
+              throw new Error(resp)
+            }
             this.challengeAll()
               .then(resp => {
                 this.bar.complete()
               })
           })
       })
-  }
-
-  addError (error) {
-    this.bar.interrupt(error.detail ? error.detail : error)
-    this.bar.terminate()
-    this.errors.push(error)
   }
 
   watch () {
@@ -79,11 +72,9 @@ class LetsEncrypt extends LetsEncryptAPI {
 
   set docUrl (args) {
     this._docUrl = (args === 'stage')
-     ? Constants.STAGE_API_DIRECTORY 
+     ? Constants.STAGE_API_DIRECTORY
      : Constants.PRODUCTION_API_DIRECTORY
   }
-
-
 }
 
 module.exports = LetsEncrypt

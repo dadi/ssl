@@ -4,7 +4,8 @@
   "description": "Autonomous SSL certificate generation in support of SSL-first approach.",
   "main": "index.js",
   "scripts": {
-    "test": "jest && node scripts/coverage/coverage.js"
+    "test": "standard 'lib/**/*.js' --fix && jest && node scripts/coverage/coverage.js",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "author": "Arthur Mingard <info@arthurmingard.com>",
   "license": "GPL",
@@ -16,6 +17,7 @@
     "node-fetch": "^2.0.0-alpha.6",
     "progress": "^2.0.0",
     "rsa-compat": "^1.2.7",
+    "standard": "^10.0.2",
     "ursa": "^0.9.4",
     "utf8": "^2.1.2",
     "x509": "^0.3.2"
@@ -23,7 +25,8 @@
   "devDependencies": {
     "istanbul-cobertura-badger": "^1.3.0",
     "jest": "^20.0.4",
-    "nock": "^9.0.13"
+    "nock": "^9.0.13",
+    "semantic-release": "^6.3.6"
   },
   "jest": {
     "collectCoverage": true,

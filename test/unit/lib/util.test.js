@@ -3,7 +3,7 @@ const moment = require('moment')
 const ursa = require('ursa')
 
 jest.mock('mkdirp', (path) => {
-  return
+
 })
 
 jest.mock('x509', () => {

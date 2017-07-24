@@ -10,7 +10,7 @@ const use = () => {
 
 jest.mock('mkdirp', (path) => {
   return dir => {
-    return
+
   }
 })
 
@@ -172,7 +172,7 @@ describe('SSL', () => {
   describe('getFile', () => {
 
   })
-  
+
   describe('useListeningServer', () => {
     it('should throw an error if the listening server is not running on correct port (80)', () => {
       const listeningServer = nock(`http://127.0.0.1:81`)
@@ -229,7 +229,6 @@ describe('SSL', () => {
         ssl.addMiddleware()
       }).toThrowError('Cannot add middleware without a provider')
     })
-
   })
   describe('start', () => {
     it('should throw an error if listening server is not valid', () => {
@@ -278,6 +277,6 @@ describe('SSL', () => {
 /*
 describe('start', () => {
     it('should ...', () => {
-     
+
   })
  */
