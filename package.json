@@ -1,13 +1,13 @@
 {
-  "name": "ssl",
+  "name": "@dadi/ssl",
   "version": "1.0.0",
-  "description": "",
+  "description": "Autonomous SSL certificate generation in support of SSL-first approach.",
   "main": "index.js",
   "scripts": {
     "test": "jest && node scripts/coverage/coverage.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Arthur Mingard <info@arthurmingard.com>",
+  "license": "GPL",
   "dependencies": {
     "crypto": "0.0.3",
     "mkdirp-promise": "^5.0.1",
