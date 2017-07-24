@@ -254,13 +254,13 @@ describe('SSL', () => {
     //   expect(ssl.start()).toBeUndefined()
     // })
 
-    // it('should return undefined if server is valid', () => {
-    //   const listeningServer = nock(`http://127.0.0.1`)
-    //   listeningServer.use = use
-    //   // ssl.registerTo('foo@bar.com')
-    //   ssl.useListeningServer(listeningServer)
-    //   expect(ssl.start()).toBeUndefined()
-    // })
+    it('should return undefined if server is valid', () => {
+      const listeningServer = nock(`http://127.0.0.1`)
+      listeningServer.use = use
+      ssl.registerTo('foo@bar.com')
+      ssl.useListeningServer(listeningServer)
+      expect(ssl.start()).toBeUndefined()
+    })
   })
 })
 
