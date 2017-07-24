@@ -10,9 +10,10 @@
   "license": "GPL",
   "dependencies": {
     "crypto": "0.0.3",
+    "encoding": "^0.1.12",
     "mkdirp-promise": "^5.0.1",
     "moment": "^2.18.1",
-    "node-fetch": "^2.0.0-alpha.5",
+    "node-fetch": "^2.0.0-alpha.6",
     "progress": "^2.0.0",
     "rsa-compat": "^1.2.7",
     "ursa": "^0.9.4",
