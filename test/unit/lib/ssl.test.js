@@ -152,24 +152,27 @@ describe('SSL', () => {
       expect(ssl.checkAndCreateDirectory()).toBeUndefined()
     })
   })
-  describe('getPort', () => {
 
-  })
   describe('getKey', () => {
 
   })
+
   describe('getCertificate', () => {
 
   })
+
   describe('dirExists', () => {
 
   })
+
   describe('fileExists', () => {
 
   })
+
   describe('getFile', () => {
 
   })
+  
   describe('useListeningServer', () => {
     it('should throw an error if the listening server is not running on correct port (80)', () => {
       const listeningServer = nock(`http://127.0.0.1:81`)
@@ -262,7 +265,6 @@ describe('SSL', () => {
 // autoRenew √
 // byteLength √
 // checkAndCreateDirectory √
-// getPort
 // getKey
 // getCertificate
 // dirExists
