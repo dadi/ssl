@@ -1,6 +1,6 @@
 {
   "name": "@dadi/ssl",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "Autonomous SSL certificate generation in support of SSL-first approach.",
   "main": "index.js",
   "scripts": {
@@ -46,5 +46,9 @@
     "testMatch": [
       "**/test/**/*.test.js"
     ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dadi/ssl.git"
   }
 }
