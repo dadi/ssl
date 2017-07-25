@@ -109,7 +109,7 @@ class LetsEncryptAPI {
       this.updateBar('Adding certificate watcher')
       this.watch()
     }
-    this.bar.terminate()
+    this.reset()
   }
 
   requestCertificate () {
@@ -133,8 +133,7 @@ class LetsEncryptAPI {
                 })
             })
         }
-      }
-      )
+      })
   }
 
   newCertificate () {
@@ -190,6 +189,7 @@ class LetsEncryptAPI {
   }
 
   checkChallengeStatus (url) {
+    this.updateBar('Check challenge status')
     return this.getJson(this.request(url))
   }
 
@@ -237,6 +237,15 @@ class LetsEncryptAPI {
       } else {
         return next()
       }
+    }
+  }
+
+  reset () {
+    if (this.bar) {
+      this.bar.terminate()
+    }
+    if (this.opts.restartServer) {
+      this.opts.restartServer()
     }
   }
 
