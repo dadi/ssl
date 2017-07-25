@@ -17,7 +17,6 @@ class LetsEncryptAPI {
   }
 
   register () {
-    this.bar.tick()
     this.key = util.rsa(this.opts.bytes)
     return this.generateSignedRequest({
       resource: 'new-reg',
@@ -30,7 +29,6 @@ class LetsEncryptAPI {
   }
 
   challengeAll () {
-    this.bar.tick()
     return Promise.all(this.domainChallenges())
   }
 
@@ -39,12 +37,10 @@ class LetsEncryptAPI {
    * @return {[type]} [description]
    */
   domainChallenges () {
-    this.bar.tick()
     return this.opts.domains.map(domain => this.challenge(domain))
   }
 
   challenge (domain) {
-    this.bar.tick()
     this.updateBar('Creating challenge')
     return this.generateSignedRequest({
       resource: 'new-authz',
@@ -60,7 +56,6 @@ class LetsEncryptAPI {
   }
 
   challengeMiddleware (resp) {
-    this.bar.tick()
     this.updateBar('Creating challenge middleware')
     const httpChallenge = this.getHTTPChallenge(resp)
 
@@ -91,7 +86,6 @@ class LetsEncryptAPI {
   }
 
   getHTTPChallenge (resp) {
-    this.bar.tick()
     this.updateBar('Getting HTTP challenge from response')
     if (resp.status === 403) {
       this.addError(resp)
@@ -103,16 +97,13 @@ class LetsEncryptAPI {
 
   storeChainFile (chain) {
     this.updateBar('Storing chain file')
-    this.bar.tick()
     if (chain) {
       this.writeFile(`${chain.cert}\n${chain.issuerCert}`, `${this.opts.dir}/chained.pem`)
     } else {
       this.addError({err: 'Certificate chain missing'})
       // throw new Error('Certificate chain missing')
     }
-    this.bar.tick()
     this.updateBar('Complete')
-    this.bar.tick()
     // Start watching for renewal
     if (this.opts.autoRenew) {
       this.updateBar('Adding certificate watcher')
@@ -122,7 +113,6 @@ class LetsEncryptAPI {
   }
 
   requestCertificate () {
-    this.bar.tick()
     return this.newCertificate()
       .then(res => {
         if (!res.headers.get('location')) {
@@ -148,7 +138,6 @@ class LetsEncryptAPI {
   }
 
   newCertificate () {
-    this.bar.tick()
     const key = util.rsaKeyPair(this.opts.bytes)
     this.writeFile(`${key.privateKeyPem}\n${key.publicKeyPem}`, `${this.opts.dir}/domain.key`)
     const csr = util.b64enc(util.generateCSR(key, this.opts.domains))
