@@ -109,7 +109,7 @@ class LetsEncryptAPI {
       this.updateBar('Adding certificate watcher')
       this.watch()
     }
-    this.reset()
+    this.restartServer()
   }
 
   requestCertificate () {
@@ -240,12 +240,13 @@ class LetsEncryptAPI {
     }
   }
 
-  reset () {
+  restartServer () {
+    if (this.opts.restartServer) {
+      this.updateBar('Restarting server')
+      this.opts.restartServer()
+    }
     if (this.bar) {
       this.bar.terminate()
-    }
-    if (this.opts.restartServer) {
-      this.opts.restartServer()
     }
   }
 
