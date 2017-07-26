@@ -77,7 +77,7 @@ class LetsEncrypt extends LetsEncryptAPI {
     const timeLeft = util.timeLeft(cert.notAfter, this.renewalOverlapDays)
 
     if (timeLeft.days < this.renewalOverlapDays) {
-      this.create()
+      this.init()
     }
   }
 

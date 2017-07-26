@@ -39,7 +39,7 @@ const ssl = new SSL()
   .useDomains(['somedomain.com'])
   .storeIn('/data/app/dadi-ssl/certs', true)
   .registerTo('webadmin@dadi.co')
-  .useSecureServer(secureServer)
+  .secureServerRestart(serverRestartFunction)
   .useListeningServer(listeningServer)
   .start()
 ```
@@ -69,7 +69,7 @@ const server = restify.createServer({
 
 // Add your servers and start the process.
 ssl
-  .useSecureServer(secureServer)
+  .secureServerRestart(serverRestartFunction)
   .useListeningServer(listeningServer)
   .start()
 
@@ -96,13 +96,13 @@ Set the email address for the certificate registration.
 
 ```
 
-#### `.useSecureServer(secureServer)`
+.secureServerRestart(serverRestartFunction)
 
-Pass a server running securely on port 443 to allow the service to restart it once the certificates are generated.
+Pass a server restart method to be called after successful certificate generation.
 
 ```javascript
 // Example
-.useSecureServer(secureServer)
+.secureServerRestart(restartFunction)
 ```
 
 #### `.useListeningServer(listeningServer)`
@@ -169,7 +169,7 @@ Initialises the process of creating certificates.
 new SSL()
   .useDomains(['somedomain.com'])
   .registerTo('webadmin@dadi.co')
-  .useSecureServer(secureServer)
+  .secureServerRestart(serverRestartFunction)
   .useListeningServer(listeningServer)
   .start()
 ```
