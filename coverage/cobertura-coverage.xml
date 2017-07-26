@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage lines-valid="285" lines-covered="169" line-rate="0.593" branches-valid="123" branches-covered="81" branch-rate="0.6585" timestamp="1500996787166" complexity="0" version="0.1">
+<coverage lines-valid="286" lines-covered="169" line-rate="0.5909" branches-valid="123" branches-covered="81" branch-rate="0.6585" timestamp="1501067355552" complexity="0" version="0.1">
   <sources>
     <source>/dadi/app/ssl</source>
   </sources>
@@ -359,7 +359,7 @@
         </class>
       </classes>
     </package>
-    <package name="providers.letsencrypt" line-rate="0.2263" branch-rate="0.0968">
+    <package name="providers.letsencrypt" line-rate="0.22460000000000002" branch-rate="0.0968">
       <classes>
         <class name="constants.js" filename="providers/letsencrypt/constants.js" line-rate="1" branch-rate="1">
           <methods>
@@ -469,7 +469,7 @@
             <line number="95" hits="1" branch="false"/>
           </lines>
         </class>
-        <class name="letsencryptapi.js" filename="providers/letsencrypt/letsencryptapi.js" line-rate="0.10890000000000001" branch-rate="0.047599999999999996">
+        <class name="letsencryptapi.js" filename="providers/letsencrypt/letsencryptapi.js" line-rate="0.10779999999999999" branch-rate="0.047599999999999996">
           <methods>
             <method name="(anonymous_0)" hits="3" signature="()V">
               <lines>
@@ -688,47 +688,47 @@
             </method>
             <method name="(anonymous_43)" hits="0" signature="()V">
               <lines>
-                <line number="256" hits="0"/>
+                <line number="257" hits="0"/>
               </lines>
             </method>
             <method name="(anonymous_44)" hits="0" signature="()V">
               <lines>
-                <line number="264" hits="0"/>
+                <line number="265" hits="0"/>
               </lines>
             </method>
             <method name="(anonymous_45)" hits="1" signature="()V">
               <lines>
-                <line number="278" hits="1"/>
+                <line number="279" hits="1"/>
               </lines>
             </method>
             <method name="(anonymous_46)" hits="0" signature="()V">
               <lines>
-                <line number="282" hits="0"/>
+                <line number="283" hits="0"/>
               </lines>
             </method>
             <method name="(anonymous_47)" hits="0" signature="()V">
               <lines>
-                <line number="283" hits="0"/>
+                <line number="284" hits="0"/>
               </lines>
             </method>
             <method name="(anonymous_48)" hits="0" signature="()V">
               <lines>
-                <line number="286" hits="0"/>
+                <line number="287" hits="0"/>
               </lines>
             </method>
             <method name="(anonymous_49)" hits="0" signature="()V">
               <lines>
-                <line number="287" hits="0"/>
+                <line number="288" hits="0"/>
               </lines>
             </method>
             <method name="(anonymous_50)" hits="1" signature="()V">
               <lines>
-                <line number="289" hits="1"/>
+                <line number="290" hits="1"/>
               </lines>
             </method>
             <method name="(anonymous_51)" hits="0" signature="()V">
               <lines>
-                <line number="290" hits="0"/>
+                <line number="291" hits="0"/>
               </lines>
             </method>
           </methods>
@@ -825,15 +825,16 @@
             <line number="238" hits="0" branch="false"/>
             <line number="244" hits="0" branch="true" condition-coverage="0% (0/2)"/>
             <line number="245" hits="0" branch="false"/>
-            <line number="247" hits="0" branch="true" condition-coverage="0% (0/2)"/>
-            <line number="248" hits="0" branch="false"/>
-            <line number="257" hits="0" branch="false"/>
-            <line number="265" hits="0" branch="false"/>
-            <line number="279" hits="1" branch="false"/>
-            <line number="283" hits="0" branch="false"/>
-            <line number="287" hits="0" branch="false"/>
-            <line number="290" hits="1" branch="false"/>
-            <line number="294" hits="1" branch="false"/>
+            <line number="246" hits="0" branch="false"/>
+            <line number="248" hits="0" branch="true" condition-coverage="0% (0/2)"/>
+            <line number="249" hits="0" branch="false"/>
+            <line number="258" hits="0" branch="false"/>
+            <line number="266" hits="0" branch="false"/>
+            <line number="280" hits="1" branch="false"/>
+            <line number="284" hits="0" branch="false"/>
+            <line number="288" hits="0" branch="false"/>
+            <line number="291" hits="1" branch="false"/>
+            <line number="295" hits="1" branch="false"/>
           </lines>
         </class>
       </classes>
