@@ -23,7 +23,7 @@ class LetsEncrypt extends LetsEncryptAPI {
     return this
   }
 
-  create () {
+  init () {
     this.errors = []
 
     this.bar = new progress('[:bar]', {
@@ -58,6 +58,7 @@ class LetsEncrypt extends LetsEncryptAPI {
 
   updateBar (msg) {
     if (process.env.NODE_ENV === 'development') {
+      this.bar.tick()
       this.bar.interrupt(msg)
     }
   }

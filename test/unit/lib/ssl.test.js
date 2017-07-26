@@ -194,27 +194,6 @@ describe('SSL', () => {
     })
   })
 
-  describe('useSecureServer', () => {
-    it('should throw an error if the secure server is not running on correct port (443)', () => {
-      const secureServer = nock(`http://127.0.0.1:81`)
-      expect(() => {
-        ssl.useSecureServer(secureServer)
-      }).toThrowError('Invalid secure server. Must be server running on port 443')
-    })
-
-    it('should append ssl.args with secure server when server is running on correct port (443)', () => {
-      const secureServer = nock(`https://127.0.0.1:443`)
-      ssl.useSecureServer(secureServer)
-      expect(ssl.args.secureServer).toMatchObject(secureServer)
-    })
-
-    it('should throw an error when secure server is not defined', () => {
-      expect(() => {
-        ssl.useSecureServer()
-      }).toThrowError('Invalid secure server. Must be server running on port 443')
-    })
-  })
-
   describe('addMiddleware', () => {
     it('should throw an error if there is no listeningServer set', () => {
       expect(() => {
