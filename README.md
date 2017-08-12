@@ -92,7 +92,7 @@ Set the email address for the certificate registration.
 
 ```javascript
 // Example
-.registerTo(foo@somedomain.com)
+.registerTo('foo@somedomain.com')
 
 ```
 
